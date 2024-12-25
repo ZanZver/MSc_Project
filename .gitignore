@@ -3,3 +3,4 @@ Docker/test*
 Docker/hyperledger*
 Docker/Data
 Docker/db/Data
+Docker/ethereum/Data
