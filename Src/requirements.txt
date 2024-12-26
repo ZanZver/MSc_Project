@@ -1,0 +1,8 @@
+Faker
+faker-vehicle
+polars
+fastapi
+uvicorn
+web3
+pydantic
+typing
