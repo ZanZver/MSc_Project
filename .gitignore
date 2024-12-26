@@ -4,3 +4,4 @@ Docker/hyperledger*
 Docker/Data
 Docker/db/Data
 Docker/ethereum/Data
+**/__pycache__
