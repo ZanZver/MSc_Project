@@ -55,15 +55,30 @@ def load_and_prepare_data(parquet_file_path: str) -> pl.DataFrame:
     """
     # Read the Parquet file
     df = pl.read_parquet(parquet_file_path)
+    
     with pl.Config(tbl_cols=-1):
         print(df)
-    # Cast 'full_vehicleInfo' to Struct type and unnest
-    print("~~~~~ 1 ~~~~~")
-    df = df.with_columns(
-        pl.col("full_vehicleInfo").cast(pl.Struct)
-    ).unnest("full_vehicleInfo")
-    print("~~~~~ 2 ~~~~~")
-    return df
+
+    # Ensure 'full_vehicleInfo' column is not empty or invalid
+    if "full_vehicleInfo" not in df.columns:
+        raise ValueError("The 'full_vehicleInfo' column is missing from the data.")
+    
+    # Filter out rows with null or invalid `full_vehicleInfo`
+    df = df.filter(pl.col("full_vehicleInfo").is_not_null())
+
+    # Expand `full_vehicleInfo` manually by selecting its fields
+    try:
+        expanded_df = df.with_columns([
+            pl.col("full_vehicleInfo").struct.field("Year").alias("vehicle_year"),
+            pl.col("full_vehicleInfo").struct.field("Make").alias("vehicle_make"),
+            pl.col("full_vehicleInfo").struct.field("Model").alias("vehicle_model"),
+            pl.col("full_vehicleInfo").struct.field("Category").alias("vehicle_category"),
+        ])
+        return expanded_df.drop("full_vehicleInfo")
+    except Exception as e:
+        print(f"Error during manual expansion: {e}")
+        raise
+
     
 def insert_data_into_db(df: pl.DataFrame, table_name: str):
     """
@@ -270,7 +285,6 @@ def delete_record_from_db(table_name: str, condition: str, condition_params: tup
         if conn:
             conn.close()
             
-
 def test1():
     data = retrieve_data_from_db("SELECT * FROM vehicles;", "")
     with pl.Config(tbl_cols=-1):
@@ -325,13 +339,13 @@ def main():
     parquet_file_path = "../Data/Transform/Small/data.parquet"
     table_name = "vehicles"
     
-    # Create table
     df = load_and_prepare_data(parquet_file_path)
+    
+    # Create table
+    create_table_from_df(table_name, df)
     
     # Insert data
     insert_data_into_db(df, table_name)
-    
-    
     
     print("~~~~~~~~~~ 1 ~~~~~~~~~~")
     test1()
