@@ -87,3 +87,59 @@ class BlockchainUser(HttpUser):
         if response.status_code != 200:
             print(f"Error: {response.status_code}, {response.text}")
 
+class DBUser(HttpUser):
+    wait_time = between(1, 3)  # Wait between tasks
+    host = "http://127.0.0.1:8000"  # Base URL of the API
+    
+    update_executed = False  # Class-level flag for update_record
+    delete_executed = False  # Class-level flag for delete_record
+
+    @task
+    def retrieve_all(self):
+        """Simulate GET request to retrieve all records from the database."""
+        response = self.client.get("/db/retrieve/all/")
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}, {response.text}")
+        else:
+            print(f"All records retrieved successfully: {response.json()}")
+            
+    @task
+    def retrieve_specific(self):
+        """Simulate GET request to retrieve a specific record from the database."""
+        params = {"key": "H1AUMH0D9M76R7NNG"}
+        response = self.client.get("/db/retrieve/specific/", params=params)
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}, {response.text}")
+        else:
+            print(f"Specific record retrieved successfully: {response.json()}")
+
+    @task
+    def update_record(self):
+        """Simulate PUT request to update a record in the database."""
+        if not DBUser.update_executed:
+            params = {
+                "update_values": '{"vehicle_make": "Toyota", "vehicle_model": "Camry"}',
+                "key": "82HFE9767U326DEZ2"
+            }
+            response = self.client.put("/db/update/", params=params)
+            if response.status_code != 200:
+                print(f"Error: {response.status_code}, {response.text}")
+            else:
+                print(f"Record updated successfully: {response.json()}")
+            DBUser.update_executed = True  # Set the flag to prevent re-execution
+            
+    @task
+    def delete_record(self):
+        """Simulate DELETE request to delete a specific record from the database."""
+        if not DBUser.delete_executed:
+            params = {"key": "H1AUMH0D9M76R7NNG"}
+            response = self.client.delete("/db/delete/", params=params)
+            if response.status_code != 200:
+                print(f"Error: {response.status_code}, {response.text}")
+            else:
+                print(f"Record deleted successfully: {response.json()}")
+            DBUser.delete_executed = True  # Set the flag to prevent re-execution
+
+
+
+
