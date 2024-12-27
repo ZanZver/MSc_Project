@@ -8,3 +8,4 @@ pydantic
 typing
 psycopg2-binary
 dark-swag
+locust
