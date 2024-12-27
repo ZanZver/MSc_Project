@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from models.Models import BlockchainRecord
+from models.models import BlockchainRecord
 import json
 
 def append_data_logic(w3, account, record: BlockchainRecord):

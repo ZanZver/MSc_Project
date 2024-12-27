@@ -7,3 +7,4 @@ web3
 pydantic
 typing
 psycopg2-binary
+dark-swag
