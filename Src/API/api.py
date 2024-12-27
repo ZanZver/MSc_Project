@@ -100,11 +100,11 @@ async def get_data(query: str, params: Optional[List[str]] = Query(None)):
     return {"data": get_data_logic(get_db_connection, query, params)}
     
 @app.put("/db/update/")
-async def update_record(query: str, params: Optional[List[str]] = Query(None)):
+async def update_record(update_values, condition: str, params: Optional[List[str]] = Query(None)):
     """Update a record in the database."""
-    return update_record_logic(get_db_connection, query, params)
+    return update_record_logic(get_db_connection, update_values, condition, params)
     
 @app.delete("/db/delete/")
-async def delete_record(table_name, query: str, params: Optional[List[str]] = Query(None)):
+async def delete_record(condition: str, params: Optional[List[str]] = Query(None)):
     """Delete a record from the database."""
-    return delete_record_logic(get_db_connection, table_name, query, params)
+    return delete_record_logic(get_db_connection, condition, params)
