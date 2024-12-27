@@ -1,6 +1,6 @@
 import json
 
-def delete_record_logic(w3, account, key: str, key_field: str = "vin"):
+def delete_record_bc_logic(w3, account, key: str, key_field: str = "vin"):
     try:
         if not key:
             raise HTTPException(status_code=400, detail="Key cannot be empty")
