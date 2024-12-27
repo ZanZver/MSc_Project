@@ -309,7 +309,7 @@ def test1(w3):
     latest_record = get_latest_record(license_plate, w3, "license_plate")
     print(f"Latest record for license plate {license_plate}: {latest_record}")
     
-def test2(account, w3):
+def test2(w3, account):
     # Example Usage
     # Append updated record to blockchain
     updated_record = {
@@ -389,7 +389,7 @@ def main():
     test1(w3)
     
     print("~~~~~~~~~~ 2 ~~~~~~~~~~")
-    test2(account, w3)
+    test2(w3, account)
     
     print("~~~~~~~~~~ 3 ~~~~~~~~~~")
     test3(w3)
