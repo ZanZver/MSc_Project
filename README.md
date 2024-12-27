@@ -130,60 +130,46 @@ See the history - removed record
 ### Test 5
 Get all of the records
 &nbsp;&nbsp;&nbsp;&nbsp; Path:
-&nbsp;&nbsp;&nbsp;&nbsp; ```/db/retrieve/```
-&nbsp;&nbsp;&nbsp;&nbsp; Query:
-&nbsp;&nbsp;&nbsp;&nbsp; ```SELECT * FROM vehicles;```
+&nbsp;&nbsp;&nbsp;&nbsp; ```/db/retrieve/all/```
 
 ### Test 6
 Get one record
 &nbsp;&nbsp;&nbsp;&nbsp; Path:
-&nbsp;&nbsp;&nbsp;&nbsp; ```/db/retrieve/```
-&nbsp;&nbsp;&nbsp;&nbsp; Query:
-&nbsp;&nbsp;&nbsp;&nbsp; ```SELECT * FROM vehicles WHERE vin = %s```
-&nbsp;&nbsp;&nbsp;&nbsp; Params:
+&nbsp;&nbsp;&nbsp;&nbsp; ```/db/retrieve/specific/```
+&nbsp;&nbsp;&nbsp;&nbsp; Key:
 &nbsp;&nbsp;&nbsp;&nbsp; ```82HFE9767U326DEZ2```
 
 Update the record
 &nbsp;&nbsp;&nbsp;&nbsp; Path:
 &nbsp;&nbsp;&nbsp;&nbsp; ```/db/update/```
-&nbsp;&nbsp;&nbsp;&nbsp; Update_values:
+&nbsp;&nbsp;&nbsp;&nbsp; update_values:
 &nbsp;&nbsp;&nbsp;&nbsp; ```{"vehicle_make": "Toyota", "vehicle_model": "Camry"}```
-&nbsp;&nbsp;&nbsp;&nbsp; Condition:
-&nbsp;&nbsp;&nbsp;&nbsp; ```vin = %s```
-&nbsp;&nbsp;&nbsp;&nbsp; Params:
+&nbsp;&nbsp;&nbsp;&nbsp; key:
 &nbsp;&nbsp;&nbsp;&nbsp; ```82HFE9767U326DEZ2```
 
 See the update
 &nbsp;&nbsp;&nbsp;&nbsp; Path:
-&nbsp;&nbsp;&nbsp;&nbsp; ```/db/retrieve/```
-&nbsp;&nbsp;&nbsp;&nbsp; Query:
-&nbsp;&nbsp;&nbsp;&nbsp; ```SELECT * FROM vehicles WHERE vin = %s```
-&nbsp;&nbsp;&nbsp;&nbsp; Params:
+&nbsp;&nbsp;&nbsp;&nbsp; ```/db/retrieve/specific/```
+&nbsp;&nbsp;&nbsp;&nbsp; key:
 &nbsp;&nbsp;&nbsp;&nbsp; ```82HFE9767U326DEZ2```
 
 ### Test 7
 Get the data
 &nbsp;&nbsp;&nbsp;&nbsp; Path:
-&nbsp;&nbsp;&nbsp;&nbsp; ```/db/retrieve/```
-&nbsp;&nbsp;&nbsp;&nbsp; Query:
-&nbsp;&nbsp;&nbsp;&nbsp; ```SELECT * FROM vehicles WHERE vin = %s```
-&nbsp;&nbsp;&nbsp;&nbsp; Params:
+&nbsp;&nbsp;&nbsp;&nbsp; ```/db/retrieve/specific/```
+&nbsp;&nbsp;&nbsp;&nbsp; key:
 &nbsp;&nbsp;&nbsp;&nbsp; ```82HFE9767U326DEZ2```
 
 Delete the record
 &nbsp;&nbsp;&nbsp;&nbsp; Path:
 &nbsp;&nbsp;&nbsp;&nbsp; ```/db/delete/```
-&nbsp;&nbsp;&nbsp;&nbsp; Condition
-&nbsp;&nbsp;&nbsp;&nbsp; ```vin = %s;```
-&nbsp;&nbsp;&nbsp;&nbsp; Params
+&nbsp;&nbsp;&nbsp;&nbsp; key
 &nbsp;&nbsp;&nbsp;&nbsp; ```82HFE9767U326DEZ2```
 
 Get the data - removed record
 &nbsp;&nbsp;&nbsp;&nbsp; Path:
 &nbsp;&nbsp;&nbsp;&nbsp; ```/db/retrieve/```
-&nbsp;&nbsp;&nbsp;&nbsp; Query:
-&nbsp;&nbsp;&nbsp;&nbsp; ```SELECT * FROM vehicles WHERE vin = %s```
-&nbsp;&nbsp;&nbsp;&nbsp; Params:
+&nbsp;&nbsp;&nbsp;&nbsp; key:
 &nbsp;&nbsp;&nbsp;&nbsp; ```82HFE9767U326DEZ2```
 
 ----------------------------------------------------------------------------------------------------------------
@@ -197,3 +183,101 @@ Navigate to Testing/API and start the program with:
 Then open 127.0.0.0:8089 to run the tests
 
 ----------------------------------------------------------------------------------------------------------------
+<!-- docker pull hyperledger/fabric-ca:latest
+docker pull hyperledger/fabric-peer:latest
+docker pull hyperledger/fabric-orderer:latest
+
+
+docker-compose up -d -->
+
+
+curl -sSL https://bit.ly/2ysbOFE | bash -s
+
+docker-compose up
+
+
+brew install go
+
+git clone https://github.com/hyperledger/fabric-samples.git
+cd fabric-samples/test-network
+curl -sSL https://bit.ly/2ysbOFE | bash -s
+./network.sh up createChannel -c mychannel -ca
+
+
+# T9
+Install:
+https://hyperledger-fabric.readthedocs.io/en/release-2.5/prereqs.html
+
+curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
+
+./install-fabric.sh docker samples binary
+
+cd fabric-samples/test-network
+#./network.sh up
+./network.sh createChannel -c mychannel
+./network.sh deployCC -c mychannel -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+
+(in test network)
+export PATH=${PWD}/../bin:$PATH
+export FABRIC_CFG_PATH=${PWD}/../config/
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/../organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/../organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+
+peer version
+
+
+
+I am trying to setup simple blockchain network with hyperledger:
+
+Here is what I have done:
+1) Installed prerequisites 
+https://hyperledger-fabric.readthedocs.io/en/release-2.5/prereqs.html
+
+2) Got download script:
+curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
+
+3) Executed download script:
+./install-fabric.sh docker samples binary
+ 
+4) Go to test network
+cd fabric-samples/test-network
+
+5) Set vars
+export PATH=${PWD}/../bin:$PATH
+export FABRIC_CFG_PATH=${PWD}/../config/
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+
+6) Create channel
+#cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output=../organizations
+./network.sh createChannel -c mychannel (./network.sh down)
+./network.sh deployCC -c mychannel -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+peer channel list
+
+export FABRIC_CFG_PATH=${PWD}/configtx
+
+
+
+git clone https://github.com/hyperledger/fabric-sdk-py.git
+
+conda create -n fabric-env python=3.8
+conda activate fabric-env
+pip install fabric-sdk-py
+pip install protobuf==3.20.3
+
+
+
+7) Add some basic data in
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles ${CORE_PEER_TLS_ROOTCERT_FILE} --isInit -c '{"Args":["InitLedger"]}'
+
+
+Can you help me continue? Use the internet for most up to date results
+
+
+
