@@ -1,15 +1,17 @@
 from fastapi import HTTPException
 from typing import Optional, List
 
-def delete_record_logic(get_db_connection, condition: str, params: Optional[List[str]] = None):
+def delete_record_db_logic(get_db_connection, key: str, key_field: str = "vin"):
+    if key_field is None:
+        key_field = "vin"
     """Delete a record from the database."""
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:
-                delete_query = f"DELETE FROM vehicles WHERE {condition}"
-            
+                delete_query = f"DELETE FROM vehicles WHERE {key_field} = '{key}'"
+                
                 # Execute the DELETE query
-                cur.execute(delete_query, params)
+                cur.execute(delete_query)
                 conn.commit()
             
                 return {"message": "Record deleted successfully"}

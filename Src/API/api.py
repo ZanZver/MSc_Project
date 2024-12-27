@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Query
 from web3 import Web3
 from blockchain import get_latest_record_logic, test_connection_logic, test_account_logic, append_data_logic, get_record_history_logic, delete_record_bc_logic
-from db import update_record_logic, get_data_logic, delete_record_logic
+from db import update_record_logic, get_all_data_logic, get_specific_data_logic, delete_record_db_logic
 from models.models import BlockchainRecord, DeleteRequest, UpdateRequest
 from tags.tags import tags_metadata
 from typing import Optional, List
@@ -62,7 +62,7 @@ def setup():
 def root():
     return {"message": "Welcome to the Blockchain API. Use /docs for API documentation."}
 
-@app.get("/startup", tags=["General"])
+@app.get("/startup", include_in_schema=False, tags=["General"])
 def startup_check():
     return {"status": "API is ready"}
 
@@ -102,17 +102,22 @@ def delete_bc_record(key: str, key_field: str = "vin"):
 # DB stuff
 #=================================================================================================================================
 
-@app.get("/db/retrieve/", tags=["Database Operations"])
-async def get_data(query: str, params: Optional[List[str]] = Query(None)):
+@app.get("/db/retrieve/all/", tags=["Database Operations"])
+async def get_all_data():
     """Retrieve data from the database."""
-    return {"data": get_data_logic(get_db_connection, query, params)}
+    return {"data": get_all_data_logic(get_db_connection)}
+
+@app.get("/db/retrieve/specific/", tags=["Database Operations"])
+async def get_specific_data(key: str, key_field: Optional[str] = Query(None), params: Optional[List[str]] = Query(None)):
+    """Retrieve data from the database."""
+    return {"data": get_specific_data_logic(get_db_connection, key, key_field, params)}
     
 @app.put("/db/update/", tags=["Database Operations"])
-async def update_record(update_values, condition: str, params: Optional[List[str]] = Query(None)):
+async def update_record(update_values, key: str, key_field: Optional[str] = Query(None)):
     """Update a record in the database."""
-    return update_record_logic(get_db_connection, update_values, condition, params)
+    return update_record_logic(get_db_connection, update_values, key, key_field)
     
 @app.delete("/db/delete/", tags=["Database Operations"])
-async def delete_record(condition: str, params: Optional[List[str]] = Query(None)):
+async def delete_record(key: str, key_field: Optional[str] = Query(None)):
     """Delete a record from the database."""
-    return delete_record_logic(get_db_connection, condition, params)
+    return delete_record_db_logic(get_db_connection, key, key_field)
