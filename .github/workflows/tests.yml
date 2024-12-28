@@ -37,9 +37,14 @@ jobs:
           echo "PYTHONPATH=$(pwd)/Src" >> $GITHUB_ENV
           echo "PYTHONPATH=$(pwd)/Src" >> $GITHUB_PATH
 
-      # Step 5: Run Unit Tests
+      # Step 5: Debug PYTHONPATH
+      - name: Debug PYTHONPATH
+        run: echo $PYTHONPATH
+
+      # Step 6: Run Unit Tests (test_bc.py)
       - name: Run Unit Tests (test_bc.py)
         run: pytest -s ./Testing/Unit/test_bc.py
 
+      # Step 7: Run Unit Tests (test_db.py)
       - name: Run Unit Tests (test_db.py)
         run: pytest -s ./Testing/Unit/test_db.py
