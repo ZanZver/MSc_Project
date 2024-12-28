@@ -3,12 +3,12 @@ name: Python Unit Tests
 on:
   push:
     branches:
-      - main  
+      - main
       - dev
   pull_request:
     branches:
-      - main  
-      - dev 
+      - main
+      - dev
 
 jobs:
   test:
@@ -31,7 +31,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Src/requirements.txt
 
-      # Step 4: Run Unit Tests
+      # Step 4: Set PYTHONPATH
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)/Src" >> $GITHUB_ENV
+
+      # Step 5: Run Unit Tests
       - name: Run Unit Tests (test_bc.py)
         run: pytest -s ./Testing/Unit/test_bc.py
 
