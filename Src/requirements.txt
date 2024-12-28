@@ -9,3 +9,6 @@ typing
 psycopg2-binary
 dark-swag
 locust
+pytest
+pytest-mock
+patch

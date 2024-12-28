@@ -1,6 +1,9 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from Src.API.models.models import BlockchainRecord
+try:
+    from Src.API.models.models import BlockchainRecord  # For unit tests
+except ImportError:
+    from models.models import BlockchainRecord  # For API runtime
 from fastapi import HTTPException
 import json
 

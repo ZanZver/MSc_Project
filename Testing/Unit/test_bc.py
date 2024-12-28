@@ -8,7 +8,6 @@ import pytest
 import json
 from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
-from models.models import BlockchainRecord
 from API.blockchain import (
     get_latest_record_logic,
     append_data_logic,
@@ -104,3 +103,42 @@ def test_get_connection_logic_not_connected(mock_web3):
         get_connection_logic(mock_web3)
     assert excinfo.value.status_code == 500
     assert excinfo.value.detail == "Blockchain connection is not active."
+
+
+def test_test_account_logic_valid_account():
+    # Test with a valid account
+    account = "0x12345"
+    result = get_account_logic(account)
+    assert result == {"account": account}, "Should return the correct account dictionary"
+
+def test_test_account_logic_no_account():
+    # Test with no account
+    account = None
+    with pytest.raises(HTTPException) as excinfo:
+        get_account_logic(account)
+    assert excinfo.value.status_code == 500
+    assert excinfo.value.detail == "Account not initialized."
+    
+def test_get_connection_logic_connected():
+    # Mock web3 connection
+    mock_w3 = MagicMock()
+    mock_w3.is_connected.return_value = True
+
+    # Call the function
+    result = get_connection_logic(mock_w3)
+
+    # Assertions
+    assert result == {"message": "Connected to blockchain"}, "Should return success message"
+    mock_w3.is_connected.assert_called_once()
+
+def test_get_connection_logic_not_connected():
+    # Mock web3 connection
+    mock_w3 = MagicMock()
+    mock_w3.is_connected.return_value = False
+
+    # Call the function and expect HTTP 500
+    with pytest.raises(HTTPException) as excinfo:
+        get_connection_logic(mock_w3)
+    assert excinfo.value.status_code == 500
+    assert excinfo.value.detail == "Blockchain connection is not active."
+    mock_w3.is_connected.assert_called_once()

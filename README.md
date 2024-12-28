@@ -182,6 +182,11 @@ Navigate to Testing/API and start the program with:
 
 Then open 127.0.0.0:8089 to run the tests
 
+## Unit testing
+
+Start unit testing with (make sure to be in root dir):
+```pytest -s ./Testing/Unit/test_bc.py```
+
 ----------------------------------------------------------------------------------------------------------------
 <!-- docker pull hyperledger/fabric-ca:latest
 docker pull hyperledger/fabric-peer:latest
