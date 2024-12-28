@@ -2,6 +2,7 @@ from web3 import Web3
 import polars as pl
 import json
 
+
 def create_connection(node_ip="http://127.0.0.1:8545"):
     # Connect to the local Ethereum node
     w3 = Web3(Web3.HTTPProvider(node_ip))
@@ -12,24 +13,26 @@ def create_connection(node_ip="http://127.0.0.1:8545"):
 
     # Use the first account for transactions (ensure it's unlocked)
     account = w3.eth.accounts[0]
-    
+
     return account, w3
 
-def read_data(data_path='data.parquet'):
+
+def read_data(data_path="data.parquet"):
     """
     Load data from a Parquet file using Polars.
-    
+
     Args:
         data_path (str): Path to the Parquet file.
-    
+
     Returns:
         list[dict]: Data loaded from the Parquet file, converted to a list of dictionaries.
     """
     # Load data from a Parquet file into a Polars DataFrame
     df = pl.read_parquet(data_path)
-    
+
     # Convert Polars DataFrame to a list of dictionaries
     return df.to_dicts()
+
 
 # Function to store data in blockchain
 def store_data_in_blockchain(data_to_store, account, w3):
@@ -49,15 +52,16 @@ def store_data_in_blockchain(data_to_store, account, w3):
 
     # Create and send a transaction
     tx = {
-        'from': account,
-        'to': None,  # Null address for data-only transaction
-        'value': 0,  # No Ether transfer
-        'gas': 3000000,  # Gas limit
-        'gasPrice': w3.toWei('20', 'gwei'),
-        'data': data_hex
+        "from": account,
+        "to": None,  # Null address for data-only transaction
+        "value": 0,  # No Ether transfer
+        "gas": 3000000,  # Gas limit
+        "gasPrice": w3.toWei("20", "gwei"),
+        "data": data_hex,
     }
     tx_hash = w3.eth.send_transaction(tx)
     return tx_hash
+
 
 # Function to retrieve data from blockchain
 def retrieve_data_from_blockchain(w3, tx_hash):
@@ -75,13 +79,14 @@ def retrieve_data_from_blockchain(w3, tx_hash):
     tx = w3.eth.get_transaction(tx_hash)
 
     # Check the type of `input` field and handle it
-    tx_input = tx['input']
+    tx_input = tx["input"]
     if isinstance(tx_input, str):  # Already a string
         decoded_data = Web3.toText(hexstr=tx_input)
     else:  # HexBytes, convert to hex string first
         decoded_data = Web3.toText(hexstr=tx_input.hex())
-    
+
     return decoded_data
+
 
 # Store data
 def store_data(data, account, w3, tx_hashes):
@@ -108,8 +113,9 @@ def store_data(data, account, w3, tx_hashes):
             print("Error while storing record:")
             print(record)
             print(f"Exception: {e}")
-    
+
     return tx_hashes
+
 
 # Retrieve data
 def retrive_data(w3, tx_hashes):
@@ -118,10 +124,14 @@ def retrive_data(w3, tx_hashes):
             # Ensure tx_hash is bytes if needed
             if isinstance(tx_hash, str):
                 # If tx_hash is a string, decode to bytes
-                tx_hash = bytes.fromhex(tx_hash[2:]) if tx_hash.startswith("0x") else bytes.fromhex(tx_hash)
+                tx_hash = (
+                    bytes.fromhex(tx_hash[2:])
+                    if tx_hash.startswith("0x")
+                    else bytes.fromhex(tx_hash)
+                )
 
             stored_data = retrieve_data_from_blockchain(w3, tx_hash)
-            
+
             # print(tx_hash.hex())  # tx_hash is now bytes, so .hex() works
             print(f"Retrieved data from transaction {tx_hash.hex()}: {stored_data}")
             # print(type(tx_hash))
@@ -129,7 +139,6 @@ def retrive_data(w3, tx_hashes):
             print(f"Error processing transaction {tx_hash}: {e}")
             print(type(tx_hash))
             break
-
 
 
 # def retrive_data(w3, tx_hashes):
@@ -148,12 +157,13 @@ def retrive_data(w3, tx_hashes):
 #             print(tx_hash)
 #             print(stored_data)
 #             break
-        
+
+
 # Function to append new data to the blockchain
 def append_data_to_blockchain(record, Web3, account, w3):
     """
     Add a new record (or update) to the blockchain.
-    
+
     Args:
         record (dict): The record to store or update.
         Web3 (class): Web3 class for blockchain interactions.
@@ -168,20 +178,21 @@ def append_data_to_blockchain(record, Web3, account, w3):
 
     # Create and send a transaction
     tx = {
-        'from': account,
-        'to': None,  # Null address for data-only transaction
-        'value': 0,  # No Ether transfer
-        'gas': 3000000,  # Gas limit
-        'gasPrice': Web3.toWei('20', 'gwei'),  # Corrected to use Web3.toWei
-        'data': data_hex
+        "from": account,
+        "to": None,  # Null address for data-only transaction
+        "value": 0,  # No Ether transfer
+        "gas": 3000000,  # Gas limit
+        "gasPrice": Web3.toWei("20", "gwei"),  # Corrected to use Web3.toWei
+        "data": data_hex,
     }
     # print(type(account))  # Should be <class 'str'>
     # print(type(w3))       # Should be <class 'web3.main.Web3'>
     tx_hash = w3.eth.send_transaction(tx)
     return tx_hash
 
+
 # Function to fetch and decode the latest transaction for a specific key
-def get_latest_record(key, w3, key_field='vin'):
+def get_latest_record(key, w3, key_field="vin"):
     """
     Fetch the latest record for a given key from the blockchain.
 
@@ -216,7 +227,8 @@ def get_latest_record(key, w3, key_field='vin'):
 
     return latest_record
 
-def get_record_history(w3, key, key_field='vin'):
+
+def get_record_history(w3, key, key_field="vin"):
     """
     Fetch the history of a specific record from the blockchain.
 
@@ -251,7 +263,7 @@ def get_record_history(w3, key, key_field='vin'):
 
 
 # Function to append a "deleted" record to the blockchain
-def delete_record(key, w3, account, key_field='vin'):
+def delete_record(key, w3, account, key_field="vin"):
     """
     Mark a record as deleted on the blockchain.
 
@@ -263,27 +275,25 @@ def delete_record(key, w3, account, key_field='vin'):
         str: Transaction hash of the deletion transaction.
     """
     # Create the deletion record
-    deletion_record = {
-        key_field: key,
-        "deleted": True
-    }
+    deletion_record = {key_field: key, "deleted": True}
 
     # Convert the data to hexadecimal (Ethereum stores data in hex)
     data_hex = Web3.toHex(text=json.dumps(deletion_record))
 
     # Create and send a transaction
     tx = {
-        'from': account,
-        'to': None,  # Null address for data-only transaction
-        'value': 0,  # No Ether transfer
-        'gas': 3000000,  # Gas limit
-        'gasPrice': w3.toWei('20', 'gwei'),
-        'data': data_hex
+        "from": account,
+        "to": None,  # Null address for data-only transaction
+        "value": 0,  # No Ether transfer
+        "gas": 3000000,  # Gas limit
+        "gasPrice": w3.toWei("20", "gwei"),
+        "data": data_hex,
     }
-    # tx_hash = 
+    # tx_hash =
     w3.eth.send_transaction(tx)
     # return tx_hash
-    
+
+
 def test1(w3):
     print("~~~~~~~~~~ 1.1 ~~~~~~~~~~")
     # Retrieve the latest record for a specific VIN
@@ -308,7 +318,8 @@ def test1(w3):
     license_plate = "GV19IWV"
     latest_record = get_latest_record(license_plate, w3, "license_plate")
     print(f"Latest record for license plate {license_plate}: {latest_record}")
-    
+
+
 def test2(w3, account):
     # Example Usage
     # Append updated record to blockchain
@@ -322,12 +333,12 @@ def test2(w3, account):
             "Year": 2000,
             "Make": "Mitsubishi",
             "Model": "Outlander",
-            "Category": "SUV"
+            "Category": "SUV",
         },
         "vehicle_category": "SUV",
         "vehicle_make_model": "Mitsubishi Outlander",
         "vehicle_year_make_model": "2000 Mitsubishi Outlander",
-        "vehicle_year_make_model_cat": "2000 Mitsubishi Outlander (SUV)"
+        "vehicle_year_make_model_cat": "2000 Mitsubishi Outlander (SUV)",
     }
     print("~~~~~~~~~~ 2.1 ~~~~~~~~~~")
     tx_hash = append_data_to_blockchain(updated_record, Web3, account, w3)
@@ -339,66 +350,67 @@ def test2(w3, account):
     latest_record = get_latest_record(vin, w3)
     print(f"Latest record for VIN {vin}: {latest_record}")
 
+
 def test3(w3):
     vin = "82HFE9767U326DEZ2"
     history = get_record_history(w3, vin)
     print(history)
-    
+
+
 def test4(w3, account):
     print("~~~~~~~~~~ 4.1 ~~~~~~~~~~")
-    # Get current status of the record
-    vin="82HFE9767U326DEZ2"
+    # Get current status of the record
+    vin = "82HFE9767U326DEZ2"
     latest_record = get_latest_record(vin, w3)
     print(f"Latest record for VIN {vin}: {latest_record}")
 
     print("~~~~~~~~~~ 4.2 ~~~~~~~~~~")
-    # Remove the record
-    vin="82HFE9767U326DEZ2"
+    # Remove the record
+    vin = "82HFE9767U326DEZ2"
     delete_record(vin, w3, account)
 
     print("~~~~~~~~~~ 4.3 ~~~~~~~~~~")
-    # Get current status of the record
-    vin="82HFE9767U326DEZ2"
+    # Get current status of the record
+    vin = "82HFE9767U326DEZ2"
     latest_record = get_latest_record(vin, w3)
     print(f"Latest record for VIN {vin}: {latest_record}")
 
     print("~~~~~~~~~~ 4.4 ~~~~~~~~~~")
-    # Get historical status of the record
-    vin="82HFE9767U326DEZ2"
+    # Get historical status of the record
+    vin = "82HFE9767U326DEZ2"
     print(get_record_history(w3, vin))
+
 
 def main():
     # Create connection
     tx_hashes = []
     account, w3 = create_connection()
-    
+
     print("~~~~~~~~~~ 0.1 ~~~~~~~~~~")
-    
+
     # Read data from parquet
     data = read_data("../Data/Transform/Small/data.parquet")
-    
+
     print("~~~~~~~~~~ 0.2 ~~~~~~~~~~")
-    
+
     # Save data to blockchain
     tx_hashes = store_data(data, account, w3, tx_hashes)
-    
+
     # Retrieve data from blockchain
     retrive_data(w3, tx_hashes)
-    
+
     print("~~~~~~~~~~ 1 ~~~~~~~~~~")
     test1(w3)
-    
+
     print("~~~~~~~~~~ 2 ~~~~~~~~~~")
     test2(w3, account)
-    
+
     print("~~~~~~~~~~ 3 ~~~~~~~~~~")
     test3(w3)
-    
+
     print("~~~~~~~~~~ 4 ~~~~~~~~~~")
     test4(w3, account)
-    
-    
-    
+
+
 if __name__ == "__main__":
     main()
-    

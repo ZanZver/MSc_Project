@@ -11,5 +11,5 @@ __all__ = [
     "get_account_logic",
     "append_data_logic",
     "get_record_history_logic",
-    "delete_record_bc_logic"
+    "delete_record_bc_logic",
 ]

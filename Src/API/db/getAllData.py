@@ -1,6 +1,6 @@
 from fastapi import HTTPException
-from typing import Optional, List
 from psycopg2.extras import RealDictCursor
+
 
 def get_all_data_logic(get_db_connection):
     """Retrieve data from the database."""

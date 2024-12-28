@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-from typing import List, Optional
 try:
     from Src.API.models.models import BlockchainRecord  # For unit tests
 except ImportError:
@@ -7,11 +5,14 @@ except ImportError:
 from fastapi import HTTPException
 import json
 
+
 def append_data_logic(w3, account, record: BlockchainRecord):
     try:
         if not record.data:
-            raise HTTPException(status_code=400, detail="Data to append cannot be empty")
-        
+            raise HTTPException(
+                status_code=400, detail="Data to append cannot be empty"
+            )
+
         data_hex = w3.to_hex(text=json.dumps(record.data))  # Use `w3` instance here
 
         # Construct the transaction
@@ -21,7 +22,7 @@ def append_data_logic(w3, account, record: BlockchainRecord):
             "value": 0,
             "gas": 3000000,
             "gasPrice": w3.to_wei("20", "gwei"),  # Use `w3` instance here
-            "data": data_hex
+            "data": data_hex,
         }
 
         # Send the transaction

@@ -1,16 +1,21 @@
 from locust import HttpUser, task, between, events
 
+
 @events.init.add_listener
 def on_locust_init(environment, **kwargs):
     """Set default configurations for headless mode."""
     if environment.runner is None:  # Only applies in headless mode
         from locust.runners import Runner
-        environment.runner = Runner(environment, {
-            "host": "http://127.0.0.1:8000",
-            "num_users": 100,        # Number of users
-            "spawn_rate": 10,        # Spawn rate (users per second)
-            "run_time": "5m"         # Duration
-        })
+
+        environment.runner = Runner(
+            environment,
+            {
+                "host": "http://127.0.0.1:8000",
+                "num_users": 100,  # Number of users
+                "spawn_rate": 10,  # Spawn rate (users per second)
+                "run_time": "5m",  # Duration
+            },
+        )
 
 
 class BlockchainUser(HttpUser):
@@ -37,13 +42,13 @@ class BlockchainUser(HttpUser):
                         "Year": 2000,
                         "Make": "Mitsubishi",
                         "Model": "Outlander",
-                        "Category": "SUV"
+                        "Category": "SUV",
                     },
                     "vehicle_category": "SUV",
                     "vehicle_make_model": "Mitsubishi Outlander",
                     "vehicle_year_make_model": "2000 Mitsubishi Outlander",
-                    "vehicle_year_make_model_cat": "2000 Mitsubishi Outlander (SUV)"
-                }
+                    "vehicle_year_make_model_cat": "2000 Mitsubishi Outlander (SUV)",
+                },
             }
             response = self.client.post("/blockchain/append-data", json=payload)
             if response.status_code != 200:
@@ -62,7 +67,9 @@ class BlockchainUser(HttpUser):
                 print(f"Error: {response.status_code}, {response.text}")
             else:
                 print(f"Record deleted successfully: {response.text}")
-            BlockchainUser.delete_executed = True  # Set the flag to prevent re-execution
+            BlockchainUser.delete_executed = (
+                True  # Set the flag to prevent re-execution
+            )
 
     @task
     def record_history(self):
@@ -79,18 +86,16 @@ class BlockchainUser(HttpUser):
         """Simulate GET request to fetch the latest record."""
         response = self.client.get(
             "/blockchain/latest-record",
-            params={
-                "key": "82HFE9767U326DEZ2",
-                "key_field": "vin"
-            }
+            params={"key": "82HFE9767U326DEZ2", "key_field": "vin"},
         )
         if response.status_code != 200:
             print(f"Error: {response.status_code}, {response.text}")
 
+
 class DBUser(HttpUser):
     wait_time = between(1, 3)  # Wait between tasks
     host = "http://127.0.0.1:8000"  # Base URL of the API
-    
+
     update_executed = False  # Class-level flag for update_record
     delete_executed = False  # Class-level flag for delete_record
 
@@ -102,7 +107,7 @@ class DBUser(HttpUser):
             print(f"Error: {response.status_code}, {response.text}")
         else:
             print(f"All records retrieved successfully: {response.json()}")
-            
+
     @task
     def retrieve_specific(self):
         """Simulate GET request to retrieve a specific record from the database."""
@@ -119,7 +124,7 @@ class DBUser(HttpUser):
         if not DBUser.update_executed:
             params = {
                 "update_values": '{"vehicle_make": "Toyota", "vehicle_model": "Camry"}',
-                "key": "82HFE9767U326DEZ2"
+                "key": "82HFE9767U326DEZ2",
             }
             response = self.client.put("/db/update/", params=params)
             if response.status_code != 200:
@@ -127,7 +132,7 @@ class DBUser(HttpUser):
             else:
                 print(f"Record updated successfully: {response.json()}")
             DBUser.update_executed = True  # Set the flag to prevent re-execution
-            
+
     @task
     def delete_record(self):
         """Simulate DELETE request to delete a specific record from the database."""
@@ -139,7 +144,3 @@ class DBUser(HttpUser):
             else:
                 print(f"Record deleted successfully: {response.json()}")
             DBUser.delete_executed = True  # Set the flag to prevent re-execution
-
-
-
-

@@ -11,4 +11,4 @@ dark-swag
 locust
 pytest
 pytest-mock
-patch
+pre-commit

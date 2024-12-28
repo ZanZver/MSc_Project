@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 import json
 
+
 def get_record_history_logic(w3, key: str, key_field: str = "vin"):
     try:
         history = []
@@ -13,9 +14,13 @@ def get_record_history_logic(w3, key: str, key_field: str = "vin"):
                     if record.get(key_field) == key:
                         history.append(record)
         if not history:
-            raise HTTPException(status_code=404, detail="No history found for the record")
+            raise HTTPException(
+                status_code=404, detail="No history found for the record"
+            )
         return history
     except HTTPException:  # Allow HTTPExceptions to propagate as-is
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving history: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error retrieving history: {str(e)}"
+        )

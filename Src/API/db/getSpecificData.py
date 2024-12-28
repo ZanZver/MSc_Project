@@ -2,7 +2,13 @@ from fastapi import HTTPException
 from typing import Optional, List
 from psycopg2.extras import RealDictCursor
 
-def get_specific_data_logic(get_db_connection, key: str, key_field: str = "vin", params: Optional[List[str]] = None):
+
+def get_specific_data_logic(
+    get_db_connection,
+    key: str,
+    key_field: str = "vin",
+    params: Optional[List[str]] = None,
+):
     """Retrieve data from the database."""
     if key_field is None:
         key_field = "vin"

@@ -7,5 +7,5 @@ __all__ = [
     "update_record_logic",
     "get_specific_data_logic",
     "get_all_data_logic",
-    "delete_record_db_logic"
+    "delete_record_db_logic",
 ]

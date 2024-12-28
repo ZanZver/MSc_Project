@@ -1,6 +1,6 @@
-from web3 import Web3
 from fastapi import HTTPException
 import json
+
 
 def get_latest_record_logic(w3, key: str, key_field: str = "vin"):
     try:
@@ -19,4 +19,6 @@ def get_latest_record_logic(w3, key: str, key_field: str = "vin"):
     except HTTPException:  # Keep HTTPExceptions as-is
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving record: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error retrieving record: {str(e)}"
+        )

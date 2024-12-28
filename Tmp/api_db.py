@@ -1,16 +1,15 @@
-import os
 import psycopg2
 from psycopg2.extras import execute_values, RealDictCursor
 import polars as pl
-import json
 from psycopg2 import OperationalError, sql
 from contextlib import contextmanager
 
-DB_NAME="testdb"
-DB_USER="admin"
-DB_PASSWORD="your_password"
-DB_HOST="localhost"
-DB_PORT="6432"
+DB_NAME = "testdb"
+DB_USER = "admin"
+DB_PASSWORD = "your_password"
+DB_HOST = "localhost"
+DB_PORT = "6432"
+
 
 @contextmanager
 def get_db_connection():
@@ -23,7 +22,7 @@ def get_db_connection():
             user=DB_USER,
             password=DB_PASSWORD,
             host=DB_HOST,
-            port=DB_PORT
+            port=DB_PORT,
         )
         # Yield the connection to be used in the 'with' block
         yield conn
@@ -33,7 +32,8 @@ def get_db_connection():
     finally:
         if conn:
             conn.close()
-            
+
+
 def test_db_connection():
     """Test function to verify database connection."""
     try:
@@ -48,45 +48,50 @@ def test_db_connection():
                     print("Failed to retrieve data from the database.")
     except Exception as e:
         print(f"Test failed: {e}")
-        
+
+
 def load_and_prepare_data(parquet_file_path: str) -> pl.DataFrame:
     """
     Load and process the Parquet data file, expanding the `full_vehicleInfo` column.
     """
     # Read the Parquet file
     df = pl.read_parquet(parquet_file_path)
-    
+
     with pl.Config(tbl_cols=-1):
         print(df)
 
     # Ensure 'full_vehicleInfo' column is not empty or invalid
     if "full_vehicleInfo" not in df.columns:
         raise ValueError("The 'full_vehicleInfo' column is missing from the data.")
-    
+
     # Filter out rows with null or invalid `full_vehicleInfo`
     df = df.filter(pl.col("full_vehicleInfo").is_not_null())
 
     # Expand `full_vehicleInfo` manually by selecting its fields
     try:
-        expanded_df = df.with_columns([
-            pl.col("full_vehicleInfo").struct.field("Year").alias("vehicle_year"),
-            pl.col("full_vehicleInfo").struct.field("Make").alias("vehicle_make"),
-            pl.col("full_vehicleInfo").struct.field("Model").alias("vehicle_model"),
-            pl.col("full_vehicleInfo").struct.field("Category").alias("vehicle_category"),
-        ])
+        expanded_df = df.with_columns(
+            [
+                pl.col("full_vehicleInfo").struct.field("Year").alias("vehicle_year"),
+                pl.col("full_vehicleInfo").struct.field("Make").alias("vehicle_make"),
+                pl.col("full_vehicleInfo").struct.field("Model").alias("vehicle_model"),
+                pl.col("full_vehicleInfo")
+                .struct.field("Category")
+                .alias("vehicle_category"),
+            ]
+        )
         return expanded_df.drop("full_vehicleInfo")
     except Exception as e:
         print(f"Error during manual expansion: {e}")
         raise
 
-    
+
 def insert_data_into_db(df: pl.DataFrame, table_name: str):
     """
     Insert data from a Polars DataFrame into a PostgreSQL table.
     """
     # Convert Polars DataFrame to list of tuples
     records = df.to_dicts()
-    
+
     # Use the first record to generate column names dynamically
     columns = list(records[0].keys())
     rows = [tuple(record.values()) for record in records]
@@ -99,7 +104,7 @@ def insert_data_into_db(df: pl.DataFrame, table_name: str):
             user=DB_USER,
             password=DB_PASSWORD,
             host=DB_HOST,
-            port=DB_PORT
+            port=DB_PORT,
         )
         with conn.cursor() as cur:
             # Create an insert query dynamically
@@ -112,7 +117,8 @@ def insert_data_into_db(df: pl.DataFrame, table_name: str):
     finally:
         if conn:
             conn.close()
-            
+
+
 def map_polars_to_postgres_types(polars_dtype):
     """
     Map Polars data types to PostgreSQL data types.
@@ -130,6 +136,7 @@ def map_polars_to_postgres_types(polars_dtype):
     }
     return type_mapping.get(polars_dtype, "TEXT")  # Default to TEXT for unknown types
 
+
 def create_table_from_df(table_name: str, df: pl.DataFrame):
     """
     Create a PostgreSQL table based on the schema of a Polars DataFrame.
@@ -140,14 +147,14 @@ def create_table_from_df(table_name: str, df: pl.DataFrame):
         for col_name, dtype in zip(df.columns, df.dtypes)
     ]
     columns_sql = ", ".join(columns)
-    
+
     # Construct CREATE TABLE statement
     create_table_query = f"""
     CREATE TABLE IF NOT EXISTS {table_name} (
         {columns_sql}
     );
     """
-    
+
     # Connect to PostgreSQL and execute the query
     conn = None
     try:
@@ -156,7 +163,7 @@ def create_table_from_df(table_name: str, df: pl.DataFrame):
             user=DB_USER,
             password=DB_PASSWORD,
             host=DB_HOST,
-            port=DB_PORT
+            port=DB_PORT,
         )
         with conn.cursor() as cur:
             cur.execute(create_table_query)
@@ -167,7 +174,8 @@ def create_table_from_df(table_name: str, df: pl.DataFrame):
     finally:
         if conn:
             conn.close()
-            
+
+
 def retrieve_data_from_db(query: str, params: tuple = ()) -> list:
     """
     Retrieve data from the PostgreSQL database based on a query.
@@ -187,7 +195,7 @@ def retrieve_data_from_db(query: str, params: tuple = ()) -> list:
             user=DB_USER,
             password=DB_PASSWORD,
             host=DB_HOST,
-            port=DB_PORT
+            port=DB_PORT,
         )
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Execute the query
@@ -201,8 +209,11 @@ def retrieve_data_from_db(query: str, params: tuple = ()) -> list:
     finally:
         if conn:
             conn.close()
-            
-def update_record_in_db(table_name: str, update_values: dict, condition: str, condition_params: tuple):
+
+
+def update_record_in_db(
+    table_name: str, update_values: dict, condition: str, condition_params: tuple
+):
     """
     Update records in a PostgreSQL table.
 
@@ -223,20 +234,20 @@ def update_record_in_db(table_name: str, update_values: dict, condition: str, co
             user=DB_USER,
             password=DB_PASSWORD,
             host=DB_HOST,
-            port=DB_PORT
+            port=DB_PORT,
         )
         with conn.cursor() as cur:
             # Generate the SET part of the SQL query dynamically
             set_clause = ", ".join([f"{col} = %s" for col in update_values.keys()])
             update_query = f"UPDATE {table_name} SET {set_clause} WHERE {condition}"
-            
+
             # Combine the values to update and the WHERE clause parameters
             query_params = tuple(update_values.values()) + condition_params
-            
+
             # Execute the update query
             cur.execute(update_query, query_params)
             conn.commit()
-            
+
             # Return the number of rows affected
             return cur.rowcount
     except Exception as e:
@@ -245,8 +256,11 @@ def update_record_in_db(table_name: str, update_values: dict, condition: str, co
     finally:
         if conn:
             conn.close()
-            
-def delete_record_from_db(table_name: str, condition: str, condition_params: tuple) -> int:
+
+
+def delete_record_from_db(
+    table_name: str, condition: str, condition_params: tuple
+) -> int:
     """
     Delete records from a PostgreSQL table.
 
@@ -266,16 +280,16 @@ def delete_record_from_db(table_name: str, condition: str, condition_params: tup
             user=DB_USER,
             password=DB_PASSWORD,
             host=DB_HOST,
-            port=DB_PORT
+            port=DB_PORT,
         )
         with conn.cursor() as cur:
             # Construct the DELETE query
             delete_query = f"DELETE FROM {table_name} WHERE {condition}"
-            
+
             # Execute the DELETE query
             cur.execute(delete_query, condition_params)
             conn.commit()
-            
+
             # Return the number of rows deleted
             return cur.rowcount
     except Exception as e:
@@ -284,40 +298,52 @@ def delete_record_from_db(table_name: str, condition: str, condition_params: tup
     finally:
         if conn:
             conn.close()
-            
+
+
 def test1():
     data = retrieve_data_from_db("SELECT * FROM vehicles;", "")
     with pl.Config(tbl_cols=-1):
         print(data)
 
+
 def test2():
-    # Get current status of a car
-    data = retrieve_data_from_db(query = "SELECT * FROM vehicles WHERE vin = %s;", params = ("82HFE9767U326DEZ2",))
+    # Get current status of a car
+    data = retrieve_data_from_db(
+        query="SELECT * FROM vehicles WHERE vin = %s;", params=("82HFE9767U326DEZ2",)
+    )
     with pl.Config(tbl_cols=-1):
         print(data)
-        
+
     # Update the car status
     table_name = "vehicles"
     update_values = {"vehicle_make": "Toyota", "vehicle_model": "Camry"}
     condition = "vin = %s"
     condition_params = ("82HFE9767U326DEZ2",)
-    rows_updated = update_record_in_db(table_name, update_values, condition, condition_params)
+    rows_updated = update_record_in_db(
+        table_name, update_values, condition, condition_params
+    )
     print(f"Number of rows updated: {rows_updated}")
-    
-    # Get updated status of a car
-    data = retrieve_data_from_db(query = "SELECT * FROM vehicles WHERE vin = %s;", params = ("82HFE9767U326DEZ2",))
+
+    # Get updated status of a car
+    data = retrieve_data_from_db(
+        query="SELECT * FROM vehicles WHERE vin = %s;", params=("82HFE9767U326DEZ2",)
+    )
     with pl.Config(tbl_cols=-1):
         print(data)
+
 
 def test3():
     pass
 
+
 def test4():
-    # Get current status of a car
-    data = retrieve_data_from_db(query = "SELECT * FROM vehicles WHERE vin = %s;", params = ("82HFE9767U326DEZ2",))
+    # Get current status of a car
+    data = retrieve_data_from_db(
+        query="SELECT * FROM vehicles WHERE vin = %s;", params=("82HFE9767U326DEZ2",)
+    )
     with pl.Config(tbl_cols=-1):
         print(data)
-        
+
     # Remove the car
     table_name = "vehicles"
     condition = "vin = %s"
@@ -325,39 +351,42 @@ def test4():
     rows_deleted = delete_record_from_db(table_name, condition, condition_params)
     print(f"Number of rows deleted: {rows_deleted}")
 
-    # Get updated status of a car
-    data = retrieve_data_from_db(query = "SELECT * FROM vehicles WHERE vin = %s;", params = ("82HFE9767U326DEZ2",))
+    # Get updated status of a car
+    data = retrieve_data_from_db(
+        query="SELECT * FROM vehicles WHERE vin = %s;", params=("82HFE9767U326DEZ2",)
+    )
     with pl.Config(tbl_cols=-1):
         print(data)
 
+
 def main():
-    
     # Test connection
     test_db_connection()
-    
+
     # Prepare data
     parquet_file_path = "../Data/Transform/Small/data.parquet"
     table_name = "vehicles"
-    
+
     df = load_and_prepare_data(parquet_file_path)
-    
+
     # Create table
     create_table_from_df(table_name, df)
-    
+
     # Insert data
     insert_data_into_db(df, table_name)
-    
+
     print("~~~~~~~~~~ 1 ~~~~~~~~~~")
     test1()
-    
+
     print("~~~~~~~~~~ 2 ~~~~~~~~~~")
     test2()
-    
+
     # print("~~~~~~~~~~ 3 ~~~~~~~~~~")
     # test3(w3)
-    
+
     print("~~~~~~~~~~ 4 ~~~~~~~~~~")
     test4()
-    
+
+
 if __name__ == "__main__":
     main()
