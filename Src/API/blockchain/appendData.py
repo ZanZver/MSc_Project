@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from models.models import BlockchainRecord
+from Src.API.models.models import BlockchainRecord
+from fastapi import HTTPException
 import json
 
 def append_data_logic(w3, account, record: BlockchainRecord):
@@ -24,6 +25,8 @@ def append_data_logic(w3, account, record: BlockchainRecord):
         tx_hash = w3.eth.send_transaction(tx)  # Use `w3` instance here
 
         return {"transaction_hash": tx_hash.hex()}
+    except HTTPException:  # Allow HTTPExceptions to propagate as-is
+        raise
     except ValueError as ve:
         print(f"ValueError: {ve}")
         raise HTTPException(status_code=400, detail=f"Invalid data format: {ve}")

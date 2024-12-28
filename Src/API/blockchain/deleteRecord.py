@@ -1,4 +1,5 @@
 import json
+from fastapi import HTTPException
 
 def delete_record_bc_logic(w3, account, key: str, key_field: str = "vin"):
     try:
@@ -28,6 +29,8 @@ def delete_record_bc_logic(w3, account, key: str, key_field: str = "vin"):
         tx_hash = w3.eth.send_transaction(tx) 
 
         return {"transaction_hash": tx_hash.hex()}
+    except HTTPException:  # Allow HTTPExceptions to propagate as-is
+        raise
     except ValueError as ve:
         print(f"ValueError: {ve}")
         raise HTTPException(status_code=400, detail=f"Invalid key or key_field: {ve}")

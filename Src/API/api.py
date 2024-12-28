@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
 from web3 import Web3
-from blockchain import get_latest_record_logic, test_connection_logic, test_account_logic, append_data_logic, get_record_history_logic, delete_record_bc_logic
+from blockchain import get_latest_record_logic, get_connection_logic, get_account_logic, append_data_logic, get_record_history_logic, delete_record_bc_logic
 from db import update_record_logic, get_all_data_logic, get_specific_data_logic, delete_record_db_logic
 from models.models import BlockchainRecord, DeleteRequest, UpdateRequest
 from tags.tags import tags_metadata
@@ -75,12 +75,12 @@ def favicon():
 #=================================================================================================================================
 
 @app.get("/blockchain/test-connection", tags=["Blockchain Operations"])
-def test_connection():
-    return test_connection_logic(w3)
+def get_connection():
+    return get_connection_logic(w3)
 
 @app.get("/blockchain/test-account", tags=["Blockchain Operations"])
-def test_account():
-    return test_account_logic(account)
+def get_account():
+    return get_account_logic(account)
 
 @app.get("/blockchain/latest-record", tags=["Blockchain Operations"])
 def get_latest_record(key: str, key_field: str = "vin"):
