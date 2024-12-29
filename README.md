@@ -27,6 +27,15 @@ Install environment:
 
 ----------------------------------------------------------------------------------------------------------------
 
+# Precommit
+## Setup precommit
+install precommit
+pre-commit install
+
+## Run precommit
+pre-commit run --all-files
+
+----------------------------------------------------------------------------------------------------------------
 # Testing
 
 ## Startup docker
