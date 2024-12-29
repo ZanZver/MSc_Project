@@ -8,7 +8,7 @@ import pytest
 import json
 from unittest.mock import MagicMock
 from fastapi import HTTPException
-from API.blockchain import (
+from blockchain import (
     get_latest_record_logic,
     get_all_records_logic,
     append_data_logic,

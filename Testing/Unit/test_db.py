@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
 from fastapi import HTTPException
-from API.db import (
+from db import (
     update_record_logic,
     get_all_data_logic,
     get_specific_data_logic,
