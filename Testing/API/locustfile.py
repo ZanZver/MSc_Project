@@ -91,6 +91,15 @@ class BlockchainUser(HttpUser):
         if response.status_code != 200:
             print(f"Error: {response.status_code}, {response.text}")
 
+    @task
+    def get_all_records(self):
+        """Simulate GET request to fetch all records."""
+        response = self.client.get("/blockchain/all-records/")
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}, {response.text}")
+        else:
+            print(f"All records retrieved successfully: {len(response.json())} records")
+
 
 class DBUser(HttpUser):
     wait_time = between(1, 3)  # Wait between tasks

@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from web3 import Web3
 from blockchain import (
     get_latest_record_logic,
+    get_all_records_logic,
     get_connection_logic,
     get_account_logic,
     append_data_logic,
@@ -105,6 +106,11 @@ def get_connection():
 @app.get("/blockchain/test-account", tags=["Blockchain Operations"])
 def get_account():
     return get_account_logic(account)
+
+
+@app.get("/blockchain/all-records", tags=["Blockchain Operations"])
+def get_all_records():
+    return get_all_records_logic(w3)
 
 
 @app.get("/blockchain/latest-record", tags=["Blockchain Operations"])

@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 from fastapi import HTTPException
 from API.blockchain import (
     get_latest_record_logic,
+    get_all_records_logic,
     append_data_logic,
     delete_record_bc_logic,
     get_record_history_logic,
@@ -70,6 +71,87 @@ def test_get_latest_record_logic_not_found(mock_web3):
         get_latest_record_logic(mock_web3, "123")
     assert excinfo.value.status_code == 404
     assert excinfo.value.detail == "Record not found"
+
+
+def test_get_all_records_logic_success(mock_web3):
+    # Mock the blockchain structure
+    block_0 = MagicMock(transactions=[])
+    block_1 = MagicMock(
+        transactions=[
+            MagicMock(
+                to=None, input=MagicMock(hex=lambda: "7b2276696e223a2022313233227d")
+            )  # {"vin": "123"}
+        ]
+    )
+    block_2 = MagicMock(
+        transactions=[
+            MagicMock(
+                to=None, input=MagicMock(hex=lambda: "7b2276696e223a2022343536227d")
+            )  # {"vin": "456"}
+        ]
+    )
+
+    mock_web3.eth.block_number = 2
+    mock_web3.eth.get_block.side_effect = [block_0, block_1, block_2]
+    mock_web3.to_text.side_effect = (
+        lambda hexstr: '{"vin": "123"}'
+        if hexstr == "7b2276696e223a2022313233227d"
+        else '{"vin": "456"}'
+    )
+
+    result = get_all_records_logic(mock_web3)
+
+    assert result == [{"vin": "123"}, {"vin": "456"}], "Should return all valid records"
+
+
+def test_get_all_records_logic_invalid_data(mock_web3):
+    # Mock blockchain with one valid and one invalid transaction
+    block_0 = MagicMock(transactions=[])
+    block_1 = MagicMock(
+        transactions=[
+            MagicMock(
+                to=None, input=MagicMock(hex=lambda: "7b2276696e223a2022313233227d")
+            ),  # {"vin": "123"}
+            MagicMock(
+                to=None, input=MagicMock(hex=lambda: "invalidhex")
+            ),  # Invalid hex input
+        ]
+    )
+
+    mock_web3.eth.block_number = 1
+    mock_web3.eth.get_block.side_effect = [block_0, block_1]
+    mock_web3.to_text.side_effect = (
+        lambda hexstr: '{"vin": "123"}'
+        if hexstr == "7b2276696e223a2022313233227d"
+        else None
+    )
+
+    result = get_all_records_logic(mock_web3)
+
+    assert result == [
+        {"vin": "123"}
+    ], "Should skip invalid transactions and return valid ones"
+
+
+def test_get_all_records_logic_blockchain_error(mock_web3):
+    # Simulate a blockchain error
+    mock_web3.eth.block_number = 1
+    mock_web3.eth.get_block.side_effect = Exception("Blockchain access error")
+
+    with pytest.raises(HTTPException) as excinfo:
+        get_all_records_logic(mock_web3)
+
+    assert excinfo.value.status_code == 500
+    assert "Error retrieving record: Blockchain access error" in excinfo.value.detail
+
+
+def test_get_all_records_logic_empty_blockchain(mock_web3):
+    # Simulate an empty blockchain
+    mock_web3.eth.block_number = -1
+
+    result = get_all_records_logic(mock_web3)
+
+    assert result == [], "Should return an empty list when there are no blocks"
 
 
 def test_append_data_logic_success(mock_web3, mock_account, mock_record):
