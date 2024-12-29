@@ -1,5 +1,5 @@
 try:
-    from Src.API.models.models import BlockchainRecord  # For unit tests
+    from ..models.models import BlockchainRecord
 except ImportError:
     from models.models import BlockchainRecord  # For API runtime
 from fastapi import HTTPException

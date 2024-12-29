@@ -33,9 +33,7 @@ jobs:
 
       # Step 4: Set PYTHONPATH
       - name: Set PYTHONPATH
-        run: |
-          echo "PYTHONPATH=$(pwd)/Src" >> $GITHUB_ENV
-          echo "PYTHONPATH=$(pwd)/Src" >> $GITHUB_PATH
+        run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
       # Step 5: Debug PYTHONPATH
       - name: Debug PYTHONPATH
