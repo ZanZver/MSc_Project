@@ -1,11 +1,14 @@
-import sys
+from pydantic import BaseModel
+from typing import Optional, Dict
 from fastapi import HTTPException
 import json
 
-if "pytest" in sys.modules:
-    from ..models.models import BlockchainRecord  # For unit tests
-else:
-    from models.models import BlockchainRecord  # For API runtime
+
+# Tmp: Remove after fixing git test action
+class BlockchainRecord(BaseModel):
+    key: str
+    key_field: Optional[str] = "vin"
+    data: Optional[Dict] = None
 
 
 def append_data_logic(w3, account, record: BlockchainRecord):
