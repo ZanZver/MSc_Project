@@ -1,9 +1,11 @@
-try:
-    from Src.API.models.models import BlockchainRecord
-except ImportError:
-    from models.models import BlockchainRecord  # For API runtime
+import sys
 from fastapi import HTTPException
 import json
+
+if "pytest" in sys.modules:
+    from Src.API.models.models import BlockchainRecord  # For unit tests
+else:
+    from models.models import BlockchainRecord  # For API runtime
 
 
 def append_data_logic(w3, account, record: BlockchainRecord):
