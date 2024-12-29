@@ -16,7 +16,7 @@ from db import (
     delete_record_db_logic,
 )
 from models.models import BlockchainRecord
-from tags.tags import tags_metadata
+from API.tags.tags import tags_metadata
 from typing import Optional, List
 import psycopg2
 
