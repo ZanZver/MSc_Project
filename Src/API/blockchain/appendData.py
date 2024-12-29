@@ -3,7 +3,7 @@ from fastapi import HTTPException
 import json
 
 if "pytest" in sys.modules:
-    from Src.API.models.models import BlockchainRecord  # For unit tests
+    from ..models.models import BlockchainRecord  # For unit tests
 else:
     from models.models import BlockchainRecord  # For API runtime
 
