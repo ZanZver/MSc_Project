@@ -1,9 +1,14 @@
-try:
-    from Src.API.models.models import BlockchainRecord  # For unit tests
-except ImportError:
-    from models.models import BlockchainRecord  # For API runtime
+from pydantic import BaseModel
+from typing import Optional, Dict
 from fastapi import HTTPException
 import json
+
+
+# Tmp: Remove after fixing git test action
+class BlockchainRecord(BaseModel):
+    key: str
+    key_field: Optional[str] = "vin"
+    data: Optional[Dict] = None
 
 
 def append_data_logic(w3, account, record: BlockchainRecord):

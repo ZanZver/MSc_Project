@@ -206,21 +206,15 @@ def get_latest_record(key, w3, key_field="vin"):
     latest_record = None
 
     # Iterate through the blockchain's transactions
-    # print("<<<<< 0 >>>>>")
     for block_number in range(w3.eth.block_number + 1):
-        # print("<<<<< 1 >>>>>")
         block = w3.eth.get_block(block_number, full_transactions=True)
         for tx in block.transactions:
-            # print("<<<<< 2 >>>>>")
             if tx.to is None:  # Data-only transactions
-                # print("<<<<< 3 >>>>>")
                 # Handle tx.input based on its type
                 data_hex = tx.input if isinstance(tx.input, str) else tx.input.hex()
                 try:
-                    # print("<<<<< 4 >>>>>")
                     record = json.loads(Web3.toText(hexstr=data_hex))
                     if record.get(key_field) == key:
-                        # print("<<<<< 5 >>>>>")
                         latest_record = record
                 except Exception as e:
                     print(f"Error decoding transaction: {e}")
@@ -248,11 +242,11 @@ def get_record_history(w3, key, key_field="vin"):
             if tx.to is None:  # Data-only transactions
                 try:
                     # Decode the transaction input (data field)
-                    # print("~~~~~~~~~~ 1.1 ~~~~~~~~~~")
+
                     data_hex = tx.input if isinstance(tx.input, str) else tx.input.hex()
                     # print(f"Decoded data: {data_hex}")
                     record = json.loads(Web3.toText(hexstr=data_hex))
-                    # print("~~~~~~~~~~ 1.3 ~~~~~~~~~~")
+
                     # Check if the transaction contains the relevant key
                     if record.get(key_field) == key:
                         history.append(record)
@@ -295,25 +289,21 @@ def delete_record(key, w3, account, key_field="vin"):
 
 
 def test1(w3):
-    print("~~~~~~~~~~ 1.1 ~~~~~~~~~~")
     # Retrieve the latest record for a specific VIN
     vin = "82HFE9767U326DEZ2"
     latest_record = get_latest_record(vin, w3)
     print(f"Latest record for VIN {vin}: {latest_record}")
 
-    print("~~~~~~~~~~ 1.2 ~~~~~~~~~~")
     # Retrieve the latest record for a specific VIN
     vin = "H1AUMH0D9M76R7NNG"
     latest_record = get_latest_record(vin, w3)
     print(f"Latest record for VIN {vin}: {latest_record}")
 
-    print("~~~~~~~~~~ 1.3 ~~~~~~~~~~")
     # Retrieve the latest record for a specific VIN
     vin = "JPC53EJ63E7RHWPAP"
     latest_record = get_latest_record(vin, w3)
     print(f"Latest record for VIN {vin}: {latest_record}")
 
-    print("~~~~~~~~~~ 1.4 ~~~~~~~~~~")
     # Retrieve the latest record for a specific VIN
     license_plate = "GV19IWV"
     latest_record = get_latest_record(license_plate, w3, "license_plate")
@@ -340,11 +330,10 @@ def test2(w3, account):
         "vehicle_year_make_model": "2000 Mitsubishi Outlander",
         "vehicle_year_make_model_cat": "2000 Mitsubishi Outlander (SUV)",
     }
-    print("~~~~~~~~~~ 2.1 ~~~~~~~~~~")
+
     tx_hash = append_data_to_blockchain(updated_record, Web3, account, w3)
     print(f"Updated record added to blockchain with transaction hash: {tx_hash.hex()}")
 
-    print("~~~~~~~~~~ 2.2 ~~~~~~~~~~")
     # Retrieve the latest record for a specific VIN
     vin = "82HFE9767U326DEZ2"
     latest_record = get_latest_record(vin, w3)
@@ -358,24 +347,20 @@ def test3(w3):
 
 
 def test4(w3, account):
-    print("~~~~~~~~~~ 4.1 ~~~~~~~~~~")
     # Get current status of the record
     vin = "82HFE9767U326DEZ2"
     latest_record = get_latest_record(vin, w3)
     print(f"Latest record for VIN {vin}: {latest_record}")
 
-    print("~~~~~~~~~~ 4.2 ~~~~~~~~~~")
     # Remove the record
     vin = "82HFE9767U326DEZ2"
     delete_record(vin, w3, account)
 
-    print("~~~~~~~~~~ 4.3 ~~~~~~~~~~")
     # Get current status of the record
     vin = "82HFE9767U326DEZ2"
     latest_record = get_latest_record(vin, w3)
     print(f"Latest record for VIN {vin}: {latest_record}")
 
-    print("~~~~~~~~~~ 4.4 ~~~~~~~~~~")
     # Get historical status of the record
     vin = "82HFE9767U326DEZ2"
     print(get_record_history(w3, vin))
