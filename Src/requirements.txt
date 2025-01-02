@@ -12,3 +12,4 @@ locust
 pytest
 pytest-mock
 pre-commit
+pytest-cov

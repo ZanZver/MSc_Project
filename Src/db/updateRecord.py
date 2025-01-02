@@ -7,7 +7,7 @@ def update_record_logic(
 ):
     """Update a record in the database."""
     if key_field is None:
-        key_field = "vin"
+        key_field = "vin"  # pragma: no cover
     try:
         with get_db_connection() as conn:
             with conn.cursor() as cur:

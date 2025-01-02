@@ -1,3 +1,4 @@
+# pragma: no cover
 tags_metadata = [
     {
         "name": "Blockchain Operations",

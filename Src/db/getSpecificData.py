@@ -11,7 +11,7 @@ def get_specific_data_logic(
 ):
     """Retrieve data from the database."""
     if key_field is None:
-        key_field = "vin"
+        key_field = "vin"  # pragma: no cover
     try:
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:

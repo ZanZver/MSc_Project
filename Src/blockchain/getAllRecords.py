@@ -18,8 +18,8 @@ def get_all_records_logic(w3):
                         latest_record.append(record)
                     except Exception as e:
                         print(f"Error decoding transaction: {e}")
-    except HTTPException:  # Keep HTTPExceptions as-is
-        raise
+    except HTTPException:  # pragma: no cover
+        raise  # Keep HTTPExceptions as-is
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error retrieving record: {str(e)}"

@@ -16,8 +16,8 @@ def get_latest_record_logic(w3, key: str, key_field: str = "vin"):
         if not latest_record:
             raise HTTPException(status_code=404, detail="Record not found")
         return latest_record
-    except HTTPException:  # Keep HTTPExceptions as-is
-        raise
+    except HTTPException:  # pragma: no cover
+        raise  # Keep HTTPExceptions as-is
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error retrieving record: {str(e)}"

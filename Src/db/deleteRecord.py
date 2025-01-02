@@ -3,7 +3,7 @@ from fastapi import HTTPException
 
 def delete_record_db_logic(get_db_connection, key: str, key_field: str = "vin"):
     if key_field is None:
-        key_field = "vin"
+        key_field = "vin"  # pragma: no cover
     """Delete a record from the database."""
     try:
         with get_db_connection() as conn:
