@@ -1,9 +1,3 @@
-import sys
-import os
-
-# Add the `Project` directory to `sys.path`
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-
 import pytest
 import json
 from unittest.mock import MagicMock
@@ -255,7 +249,7 @@ def test_get_bc_connection_logic_not_connected(mock_web3):
     assert excinfo.value.detail == "Blockchain connection is not active."
 
 
-def test_test_account_logic_valid_account():
+def test_account_logic_valid_account():
     # Test with a valid account
     account = "0x12345"
     result = get_account_logic(account)
@@ -264,7 +258,7 @@ def test_test_account_logic_valid_account():
     }, "Should return the correct account dictionary"
 
 
-def test_test_account_logic_no_account():
+def test_account_logic_no_account():
     # Test with no account
     account = None
     with pytest.raises(HTTPException) as excinfo:
