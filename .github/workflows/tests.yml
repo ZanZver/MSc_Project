@@ -42,7 +42,7 @@ jobs:
       # Step 6: Run all tests with coverage
       - name: Run Tests with Coverage
         run: |
-          pytest --cov=Src --cov-report=xml --cov-report=term-missing ./Testing/Unit
+          pytest --cov=Src --cov-report=xml --cov-report=term-missing --cov-fail-under=80 ./Testing/Unit
 
       # Step 7: Upload coverage report
       - name: Upload Coverage Report
