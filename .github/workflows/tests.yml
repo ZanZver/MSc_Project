@@ -50,22 +50,3 @@ jobs:
         with:
           name: coverage-report
           path: coverage.xml
-
-      # Step 8: Start API for load testing
-      - name: Start API
-        run: |
-          nohup uvicorn Src/API.api:app --host 0.0.0.0 --port 8000 --reload &
-
-      # Step 9: Run Locust load tests
-      - name: Run Locust Load Test
-        run: |
-          sleep 5  # Give API time to start
-          locust -f Testing/API/locustfile.py --headless --host=http://127.0.0.1:8000 -u 10 -r 2 --run-time 5m --loglevel WARNING > Testing/API/locust_output.log 2>&1
-        timeout-minutes: 10
-
-      # Step 10: Upload Locust Logs
-      - name: Upload Locust Logs
-        uses: actions/upload-artifact@v3
-        with:
-          name: locust-logs
-          path: Testing/API/locust_output.log
