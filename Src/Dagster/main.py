@@ -1,6 +1,6 @@
 # from dagster import asset
 
-from dagster import op, job, Out, In, Nothing
+from dagster import op, job, Out, In, Nothing, String
 from ETL import (
     create_fake_data,
     transform_data,
@@ -9,27 +9,35 @@ from ETL import (
 
 
 # Create Data (Extract)
-@op(out=Out(Nothing))  # No return value; signals the next step when done
-def create_fake_data_op():
-    create_fake_data("Small")
+@op(config_schema={"data_size": String}, out=Out(Nothing))
+def create_fake_data_op(context):
+    data_size = context.op_config["data_size"]
+    create_fake_data(data_size)
 
 
 # Transform Data (Transform JSON to Parquet)
-@op(ins={"start": In(Nothing)}, out=Out(Nothing))  # Depends on create_fake_data_op
-def transform_data_op():
-    transform_data("Small")
+@op(config_schema={"data_size": String}, ins={"start": In(Nothing)}, out=Out(Nothing))
+def transform_data_op(context):
+    data_size = context.op_config["data_size"]
+    transform_data(data_size)
 
 
 # Load Data (Save Parquet)
-@op(ins={"start": In(Nothing)}, out=Out(Nothing))  # Depends on transform_data_op
-def load_data_op():
-    load_data("Small")
+@op(config_schema={"data_size": String}, ins={"start": In(Nothing)}, out=Out(Nothing))
+def load_data_op(context):
+    data_size = context.op_config["data_size"]
+    load_data(data_size)
 
 
 # Dagster Job Definition
 @job
 def small_etl_job():
-    # Set execution dependencies using explicit wiring
-    create = create_fake_data_op()
-    transform = transform_data_op(start=create)
-    load_data_op(start=transform)
+    create = create_fake_data_op.configured(
+        {"data_size": "Small"}, name="create_fake_data_configured"
+    )()
+    transform = transform_data_op.configured(
+        {"data_size": "Small"}, name="transform_data_configured"
+    )(start=create)
+    load_data_op.configured({"data_size": "Small"}, name="load_data_configured")(
+        start=transform
+    )
