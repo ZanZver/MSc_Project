@@ -1,9 +1,9 @@
 import polars as pl
 
 # File paths
-json_file = "../../Data/Extract/Small/data.json"  # Replace with your JSON file path
+json_file = "../../Data/Extract/Medium/data.json"  # Replace with your JSON file path
 parquet_file = (
-    "../../Data/Transform/Small/data.parquet"  # Desired Parquet output file path
+    "../../Data/Transform/Medium/data.parquet"  # Desired Parquet output file path
 )
 
 # Read JSON file into a DataFrame

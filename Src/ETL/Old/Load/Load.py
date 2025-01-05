@@ -1,9 +1,9 @@
 import polars as pl
 
 # File paths
-input_parquet = "../../Data/Transform/Small/data.parquet"  # Replace with your input Parquet file path
+input_parquet = "../../Data/Transform/Medium/data.parquet"  # Replace with your input Parquet file path
 output_parquet = (
-    "../../Data/Load/Small/data.parquet"  # Desired output Parquet file path
+    "../../Data/Load/Medium/data.parquet"  # Desired output Parquet file path
 )
 
 # Read the Parquet file into a DataFrame
