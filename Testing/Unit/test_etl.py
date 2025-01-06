@@ -79,14 +79,7 @@ def test_load_data(size):
 )
 def test_cleanup_data(data_size, file_existence):
     context = build_op_context(config={"data_size": data_size})
-    # paths = [
-    #     f"../Data/{folder}/{data_size}/data.{ext}"
-    #     for folder, ext in [
-    #         ("Extract", "json"),
-    #         ("Transform", "parquet"),
-    #         ("Load", "parquet"),
-    #     ]
-    # ]
+
     with patch("os.path.exists", side_effect=file_existence) as _, patch(
         "os.remove"
     ) as mock_remove:
