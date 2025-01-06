@@ -1,4 +1,5 @@
 import pytest
+import os
 from unittest.mock import patch, MagicMock
 import polars as pl
 from dagster import build_op_context
@@ -35,8 +36,13 @@ def mock_connection():
     "size, expected_num", [("Small", 1000), ("Medium", 5000), ("Large", 10000)]
 )
 def test_create_fake_data(size, expected_num):
+    """Ensure the directory exists before running the test to avoid FileNotFoundError."""
+    output_dir = f"../Data/Extract/{size}"
+    os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
+
     with patch("json.dump") as mock_dump, patch("os.makedirs", return_value=True):
         create_fake_data(size)
+
     assert len(mock_dump.call_args[0][0]) == expected_num
 
 
