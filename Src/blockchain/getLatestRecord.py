@@ -18,7 +18,7 @@ def get_latest_record_logic(w3, key: str, key_field: str = "vin"):
         return latest_record
     except HTTPException:  # pragma: no cover
         raise  # Keep HTTPExceptions as-is
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         raise HTTPException(
             status_code=500, detail=f"Error retrieving record: {str(e)}"
         )

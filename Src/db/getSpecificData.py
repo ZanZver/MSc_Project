@@ -10,8 +10,8 @@ def get_specific_data_logic(
     params: Optional[List[str]] = None,
 ):
     """Retrieve data from the database."""
-    if key_field is None:
-        key_field = "vin"  # pragma: no cover
+    if key_field is None:  # pragma: no cover
+        key_field = "vin"
     try:
         with get_db_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:

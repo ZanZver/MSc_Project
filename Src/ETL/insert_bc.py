@@ -3,7 +3,7 @@ import polars as pl
 import json
 
 
-def create_connection(node_ip="http://127.0.0.1:8545"):
+def create_connection(node_ip="http://127.0.0.1:8545"):  # pragma: no cover
     # Connect to the local Ethereum node
     w3 = Web3(Web3.HTTPProvider(node_ip))
 

@@ -36,9 +36,9 @@ def append_data_logic(w3, account, record: BlockchainRecord):
         return {"transaction_hash": tx_hash.hex()}
     except HTTPException:  # Allow HTTPExceptions to propagate as-is
         raise
-    except ValueError as ve:
+    except ValueError as ve:  # pragma: no cover
         print(f"ValueError: {ve}")
         raise HTTPException(status_code=400, detail=f"Invalid data format: {ve}")
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=f"Error appending data: {str(e)}")

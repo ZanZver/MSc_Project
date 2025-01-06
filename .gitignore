@@ -7,3 +7,4 @@ Docker/ethereum/Data
 **/__pycache__
 **/tmpy2csarob
 Src/tmp*
+**/.coverage

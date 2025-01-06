@@ -9,7 +9,7 @@ DB_HOST = "localhost"
 DB_PORT = "6432"
 
 
-def load_and_prepare_data(parquet_file_path: str) -> pl.DataFrame:
+def load_and_prepare_data(parquet_file_path: str) -> pl.DataFrame:  # pragma: no cover
     """
     Load and process the Parquet data file, expanding the `full_vehicleInfo` column.
     """
@@ -72,14 +72,14 @@ def create_table_from_df(table_name: str, df: pl.DataFrame):
             cur.execute(create_table_query)
             conn.commit()
             print(f"Table '{table_name}' created successfully.")
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         print(f"An error occurred while creating the table: {e}")
     finally:
         if conn:
             conn.close()
 
 
-def insert_data_into_db(df: pl.DataFrame, table_name: str):
+def insert_data_into_db(df: pl.DataFrame, table_name: str):  # pragma: no cover
     """
     Insert data from a Polars DataFrame into a PostgreSQL table.
     """

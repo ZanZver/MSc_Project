@@ -2,18 +2,18 @@ from pydantic import BaseModel
 from typing import Optional, Dict, List
 
 
-class BlockchainRecord(BaseModel):  # pragma: no cover
+class BlockchainRecord(BaseModel):
     key: str
     key_field: Optional[str] = "vin"
     data: Optional[Dict] = None
 
 
-class DeleteRequest(BaseModel):  # pragma: no cover
+class DeleteRequest(BaseModel):
     condition: str
     condition_params: List[str]
 
 
-class UpdateRequest(BaseModel):  # pragma: no cover
+class UpdateRequest(BaseModel):
     update_values: dict
     condition: str
     condition_params: List[str]

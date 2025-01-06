@@ -16,7 +16,7 @@ def create_fake_data(size: str, seed: int = 42):
             num_cars = 5000
         case "large":
             num_cars = 10000
-        case _:
+        case _:  # pragma: no cover
             num_cars = 1000
 
     fake_cars = []

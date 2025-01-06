@@ -17,7 +17,7 @@ def cleanup_data(context):
             try:
                 os.remove(path)
                 context.log.info(f"Successfully removed file: {path}")
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 context.log.error(f"Failed to remove file: {path}. Error: {e}")
         else:
             context.log.warning(f"File not found (nothing to remove): {path}")

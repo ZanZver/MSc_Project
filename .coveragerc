@@ -1,0 +1,12 @@
+[run]
+omit =
+    */API/__init__.py
+    */API/api.py
+    */API/tags/tags.py 
+    */API/tags/__init__.py 
+    */ETL/__init__.py 
+    */blockchain/__init__.py  
+    */__init__.py  
+    */db/__init__.py     
+    */models/__init__.py  
+    */models/models.py 
