@@ -1,6 +1,14 @@
 # from dagster import asset
 from dagster import op, job, Out, In, Nothing, String, repository
-from ETL import create_fake_data, transform_data, load_data, cleanup_data
+from ETL import (
+    create_fake_data,
+    transform_data,
+    load_data,
+    cleanup_data,
+    bc_insert_data,
+    db_insert_data,
+)
+import os
 
 
 # Create Data (Extract)
@@ -30,10 +38,32 @@ def load_data_op(context):
     context.log.info(f"Finished loading data of size: {data_size}")
 
 
+@op(config_schema={"data_size": String}, ins={"start": In(Nothing)}, out=Out(Nothing))
+def bc_insert_data_op(context):
+    data_size = context.op_config["data_size"]
+    context.log.info(f"Starting to insert blockchain data of size: {data_size}")
+    bc_insert_data(data_size)
+    context.log.info(f"Finished inserting blockchain data of size: {data_size}")
+
+
+@op(config_schema={"data_size": String}, ins={"start": In(Nothing)}, out=Out(Nothing))
+def db_insert_data_op(context):
+    data_size = context.op_config["data_size"]
+    context.log.info(f"Starting to insert db data of size: {data_size}")
+    db_insert_data(data_size)
+    context.log.info(f"Finished inserting db data of size: {data_size}")
+
+
 # Cleanup Data (Remove Files)
 @op(config_schema={"data_size": String}, out=Out(Nothing))
 def cleanup_data_op(context):
     cleanup_data(context)
+
+
+@op(config_schema={"container": String}, out=Out(Nothing))
+def start_docker_compose_op(context):
+    container = context.op_config["container"]
+    os.system(f"docker-compose -f ../Docker/{container}/docker-compose.yml up -d")
 
 
 # Small ETL Job
@@ -46,8 +76,14 @@ def small_etl_job():
     transform = transform_data_op.configured(
         {"data_size": size}, name=f"{size}_transform_data"
     )(start=create)
-    load_data_op.configured({"data_size": size}, name=f"{size}_load_data")(
+    load = load_data_op.configured({"data_size": size}, name=f"{size}_load_data")(
         start=transform
+    )
+    bc_insert_data_op.configured({"data_size": size}, name=f"{size}_bc_insert_data")(
+        start=load
+    )
+    db_insert_data_op.configured({"data_size": size}, name=f"{size}_db_insert_data")(
+        start=load
     )
 
 
@@ -61,8 +97,14 @@ def medium_etl_job():
     transform = transform_data_op.configured(
         {"data_size": size}, name=f"{size}_transform_data"
     )(start=create)
-    load_data_op.configured({"data_size": size}, name=f"{size}_load_data")(
+    load = load_data_op.configured({"data_size": size}, name=f"{size}_load_data")(
         start=transform
+    )
+    bc_insert_data_op.configured({"data_size": size}, name=f"{size}_bc_insert_data")(
+        start=load
+    )
+    db_insert_data_op.configured({"data_size": size}, name=f"{size}_db_insert_data")(
+        start=load
     )
 
 
@@ -75,8 +117,14 @@ def large_etl_job():
     transform = transform_data_op.configured(
         {"data_size": size}, name=f"{size}_transform_data"
     )(start=create)
-    load_data_op.configured({"data_size": size}, name=f"{size}_load_data")(
+    load = load_data_op.configured({"data_size": size}, name=f"{size}_load_data")(
         start=transform
+    )
+    bc_insert_data_op.configured({"data_size": size}, name=f"{size}_bc_insert_data")(
+        start=load
+    )
+    db_insert_data_op.configured({"data_size": size}, name=f"{size}_db_insert_data")(
+        start=load
     )
 
 
@@ -95,6 +143,18 @@ def cleanup_large_etl_job():
     cleanup_data_op.configured({"data_size": "Large"}, name="cleanup_large")()
 
 
+@job
+def start_ethereum_docker():
+    start_docker_compose_op.configured(
+        {"container": "ethereum"}, name="ethereum_docker"
+    )()
+
+
+@job
+def start_db_docker():
+    start_docker_compose_op.configured({"container": "db"}, name="db_docker")()
+
+
 # Repository definition
 @repository
 def etl_repository():
@@ -105,4 +165,6 @@ def etl_repository():
         cleanup_small_etl_job,
         cleanup_medium_etl_job,
         cleanup_large_etl_job,
+        start_ethereum_docker,
+        start_db_docker,
     ]
