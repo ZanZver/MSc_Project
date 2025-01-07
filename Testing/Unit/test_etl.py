@@ -10,7 +10,7 @@ from ETL import bc_insert_data
 
 # Fixtures for shared data
 @pytest.fixture
-def sample_records():
+def sample_records() -> list[dict]:
     return [
         {"vin": "1234ABC", "vehicle_make": "Toyota", "vehicle_year": 2021},
         {"vin": "5678DEF", "vehicle_make": "Honda", "vehicle_year": 2020},
@@ -18,12 +18,12 @@ def sample_records():
 
 
 @pytest.fixture
-def sample_df(sample_records):
+def sample_df(sample_records: list[dict]) -> pl.DataFrame:
     return pl.DataFrame(sample_records)
 
 
 @pytest.fixture
-def mock_connection():
+def mock_connection() -> tuple[str, MagicMock]:
     mock_w3 = MagicMock()
     mock_w3.eth.accounts = ["0xAccount123"]
     mock_w3.is_connected.return_value = True
@@ -35,7 +35,7 @@ def mock_connection():
 @pytest.mark.parametrize(
     "size, expected_num", [("Small", 1000), ("Medium", 5000), ("Large", 10000)]
 )
-def test_create_fake_data(size, expected_num):
+def test_create_fake_data(size: str, expected_num: int) -> None:
     """Ensure the directory exists before running the test to avoid FileNotFoundError."""
     output_dir = f"../Data/Extract/{size}"
     os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
@@ -48,7 +48,7 @@ def test_create_fake_data(size, expected_num):
 
 # Test transform_data
 @pytest.mark.parametrize("size", ["Small", "Medium", "Large"])
-def test_transform_data(size):
+def test_transform_data(size: str) -> None:
     mock_df = pl.DataFrame(
         {"vin": ["1234ABC"], "vehicle_make": ["Toyota"], "vehicle_year": [2021]}
     )
@@ -62,7 +62,7 @@ def test_transform_data(size):
 
 # Test load_data
 @pytest.mark.parametrize("size", ["Small", "Medium", "Large"])
-def test_load_data(size):
+def test_load_data(size: str) -> None:
     mock_df = pl.DataFrame(
         {"vin": ["1234XYZ"], "vehicle_make": ["Honda"], "vehicle_year": [2022]}
     )
@@ -76,15 +76,15 @@ def test_load_data(size):
 
 # Test cleanup_data
 @pytest.mark.parametrize(
-    "data_size, file_existence",
+    "size, file_existence",
     [
         ("Small", [True, True, True]),
         ("Medium", [True, False, True]),
         ("Large", [False, False, False]),
     ],
 )
-def test_cleanup_data(data_size, file_existence):
-    context = build_op_context(config={"data_size": data_size})
+def test_cleanup_data(size: str, file_existence: bool) -> None:
+    context = build_op_context(config={"data_size": size})
 
     with patch("os.path.exists", side_effect=file_existence) as _, patch(
         "os.remove"
@@ -98,8 +98,12 @@ def test_cleanup_data(data_size, file_existence):
 @patch("polars.read_parquet")
 @pytest.mark.parametrize("size", ["Small", "Medium", "Large"])
 def test_bc_insert_data(
-    mock_read_parquet, mock_create_connection, sample_records, mock_connection, size
-):
+    mock_read_parquet: MagicMock,
+    mock_create_connection: MagicMock,
+    sample_records: list[dict],
+    mock_connection: tuple[str, MagicMock],
+    size: str,
+) -> None:
     """
     Test bc_insert_data to ensure data is read from Parquet and inserted into the blockchain.
     """
@@ -119,7 +123,7 @@ def test_bc_insert_data(
 
 # Test PostgreSQL insert
 @patch("psycopg2.connect")
-def test_create_table_from_df(mock_connect, sample_df):
+def test_create_table_from_df(mock_connect: MagicMock, sample_df: pl.DataFrame) -> None:
     """
     Test create_table_from_df to ensure the PostgreSQL table creation query is executed correctly.
     """
@@ -149,8 +153,13 @@ def test_create_table_from_df(mock_connect, sample_df):
 @patch("psycopg2.connect")
 @pytest.mark.parametrize("size", ["Small", "Medium", "Large"])
 def test_db_insert_data(
-    mock_connect, mock_insert, mock_create_table, mock_load_data, sample_df, size
-):
+    mock_connect: MagicMock,
+    mock_insert: MagicMock,
+    mock_create_table: MagicMock,
+    mock_load_data: MagicMock,
+    sample_df: pl.DataFrame,
+    size: str,
+) -> None:
     mock_connect.return_value = MagicMock()
     mock_load_data.return_value = sample_df
     db_insert_data(size)

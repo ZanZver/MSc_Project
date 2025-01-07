@@ -1,8 +1,9 @@
 from fastapi import HTTPException
 from psycopg2.extras import RealDictCursor
+import psycopg2
 
 
-def get_all_data_logic(get_db_connection):
+def get_all_data_logic(get_db_connection: psycopg2._psycopg.connection) -> dict:
     """Retrieve data from the database."""
     try:
         with get_db_connection() as conn:

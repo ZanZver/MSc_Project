@@ -31,7 +31,7 @@ def create_fake_data(seedNumber=42, numberOfCars=10):  # fakeCars:[]
     return fakeCars
 
 
-def save_file(output_path, fake_cars):
+def save_file(output_path, fake_cars) -> None:
     # Ensure the directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
@@ -42,11 +42,11 @@ def save_file(output_path, fake_cars):
     print(f"Fake car data has been saved to {output_path}")
 
 
-def main():
-    fake_cars = create_fake_data(seedNumber=42, numberOfCars=100000)
+def main() -> None:
+    fake_cars = create_fake_data(seedNumber=42, numberOfCars=5000)
 
     # Define the output path
-    output_path = "../../Data/Extract/Large/data.json"
+    output_path = "../../Data/Extract/Medium/data.json"
 
     save_file(output_path, fake_cars)
 

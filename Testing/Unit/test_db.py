@@ -12,13 +12,13 @@ import json
 
 # Common fixtures
 @pytest.fixture
-def mock_cursor():
+def mock_cursor() -> MagicMock:
     cursor = MagicMock()
     return cursor
 
 
 @pytest.fixture
-def mock_connection(mock_cursor):
+def mock_connection(mock_cursor: MagicMock) -> MagicMock:
     connection = MagicMock()
     connection.__enter__.return_value = connection
     connection.cursor.return_value.__enter__.return_value = mock_cursor
@@ -26,12 +26,14 @@ def mock_connection(mock_cursor):
 
 
 @pytest.fixture
-def mock_get_db_connection(mock_connection):
+def mock_get_db_connection(mock_connection: MagicMock) -> MagicMock:
     return MagicMock(return_value=mock_connection)
 
 
 # Tests
-def test_get_all_data_logic_success(mock_get_db_connection, mock_cursor):
+def test_get_all_data_logic_success(
+    mock_get_db_connection: MagicMock, mock_cursor: MagicMock
+) -> None:
     mock_data = [{"id": 1, "name": "Vehicle1"}, {"id": 2, "name": "Vehicle2"}]
     mock_cursor.fetchall.return_value = mock_data
 
@@ -41,7 +43,7 @@ def test_get_all_data_logic_success(mock_get_db_connection, mock_cursor):
     mock_cursor.execute.assert_called_once_with("SELECT * FROM vehicles;")
 
 
-def test_get_all_data_logic_failure(mock_get_db_connection):
+def test_get_all_data_logic_failure(mock_get_db_connection: MagicMock) -> None:
     mock_get_db_connection.side_effect = Exception("Database connection error")
 
     with pytest.raises(HTTPException) as exc_info:
@@ -51,7 +53,9 @@ def test_get_all_data_logic_failure(mock_get_db_connection):
     assert "Error retrieving data" in exc_info.value.detail
 
 
-def test_get_specific_data_logic_success(mock_get_db_connection, mock_cursor):
+def test_get_specific_data_logic_success(
+    mock_get_db_connection: MagicMock, mock_cursor: MagicMock
+) -> None:
     mock_data = [{"id": 1, "vin": "VIN123", "name": "Vehicle1"}]
     mock_cursor.fetchall.return_value = mock_data
 
@@ -63,7 +67,7 @@ def test_get_specific_data_logic_success(mock_get_db_connection, mock_cursor):
     )
 
 
-def test_get_specific_data_logic_failure(mock_get_db_connection):
+def test_get_specific_data_logic_failure(mock_get_db_connection: MagicMock) -> None:
     mock_get_db_connection.side_effect = Exception("Database error")
 
     with pytest.raises(HTTPException) as exc_info:
@@ -73,7 +77,9 @@ def test_get_specific_data_logic_failure(mock_get_db_connection):
     assert "Error retrieving data" in exc_info.value.detail
 
 
-def test_update_record_logic_success(mock_get_db_connection, mock_cursor):
+def test_update_record_logic_success(
+    mock_get_db_connection: MagicMock, mock_cursor: MagicMock
+) -> None:
     update_values = json.dumps({"name": "Updated Vehicle", "status": "Active"})
 
     result = update_record_logic(mock_get_db_connection, update_values, "VIN123", "vin")
@@ -85,7 +91,7 @@ def test_update_record_logic_success(mock_get_db_connection, mock_cursor):
     assert result == {"message": "Record updated successfully"}
 
 
-def test_update_record_logic_failure(mock_get_db_connection):
+def test_update_record_logic_failure(mock_get_db_connection: MagicMock) -> None:
     mock_get_db_connection.side_effect = Exception("Database error")
 
     update_values = json.dumps({"name": "Updated Vehicle", "status": "Active"})
@@ -97,7 +103,9 @@ def test_update_record_logic_failure(mock_get_db_connection):
     assert "Error updating record" in exc_info.value.detail
 
 
-def test_delete_record_db_logic_success(mock_get_db_connection, mock_cursor):
+def test_delete_record_db_logic_success(
+    mock_get_db_connection: MagicMock, mock_cursor: MagicMock
+) -> None:
     result = delete_record_db_logic(mock_get_db_connection, "VIN123", "vin")
 
     expected_query = "DELETE FROM vehicles WHERE vin = 'VIN123'"
@@ -105,7 +113,7 @@ def test_delete_record_db_logic_success(mock_get_db_connection, mock_cursor):
     assert result == {"message": "Record deleted successfully"}
 
 
-def test_delete_record_db_logic_failure(mock_get_db_connection):
+def test_delete_record_db_logic_failure(mock_get_db_connection: MagicMock) -> None:
     mock_get_db_connection.side_effect = Exception("Database error")
 
     with pytest.raises(HTTPException) as exc_info:

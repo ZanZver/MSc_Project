@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2.extras import execute_values, RealDictCursor
 import polars as pl
+from polars.datatypes import dtype
 from psycopg2 import OperationalError, sql
 from contextlib import contextmanager
 
@@ -12,7 +13,7 @@ DB_PORT = "6432"
 
 
 @contextmanager
-def get_db_connection():
+def get_db_connection() -> psycopg2.connect:
     """Context manager for PostgreSQL database connection."""
     conn = None
     try:
@@ -34,7 +35,7 @@ def get_db_connection():
             conn.close()
 
 
-def test_db_connection():
+def test_db_connection() -> None:
     """Test function to verify database connection."""
     try:
         with get_db_connection() as conn:
@@ -85,7 +86,7 @@ def load_and_prepare_data(parquet_file_path: str) -> pl.DataFrame:
         raise
 
 
-def insert_data_into_db(df: pl.DataFrame, table_name: str):
+def insert_data_into_db(df: pl.DataFrame, table_name: str) -> None:
     """
     Insert data from a Polars DataFrame into a PostgreSQL table.
     """
@@ -119,7 +120,7 @@ def insert_data_into_db(df: pl.DataFrame, table_name: str):
             conn.close()
 
 
-def map_polars_to_postgres_types(polars_dtype):
+def map_polars_to_postgres_types(polars_dtype: dtype) -> map:
     """
     Map Polars data types to PostgreSQL data types.
     """
@@ -137,7 +138,7 @@ def map_polars_to_postgres_types(polars_dtype):
     return type_mapping.get(polars_dtype, "TEXT")  # Default to TEXT for unknown types
 
 
-def create_table_from_df(table_name: str, df: pl.DataFrame):
+def create_table_from_df(table_name: str, df: pl.DataFrame) -> None:
     """
     Create a PostgreSQL table based on the schema of a Polars DataFrame.
     """
@@ -213,7 +214,7 @@ def retrieve_data_from_db(query: str, params: tuple = ()) -> list:
 
 def update_record_in_db(
     table_name: str, update_values: dict, condition: str, condition_params: tuple
-):
+) -> int:
     """
     Update records in a PostgreSQL table.
 
@@ -300,13 +301,13 @@ def delete_record_from_db(
             conn.close()
 
 
-def test1():
+def test1() -> None:
     data = retrieve_data_from_db("SELECT * FROM vehicles;", "")
     with pl.Config(tbl_cols=-1):
         print(data)
 
 
-def test2():
+def test2() -> None:
     # Get current status of a car
     data = retrieve_data_from_db(
         query="SELECT * FROM vehicles WHERE vin = %s;", params=("82HFE9767U326DEZ2",)
@@ -332,11 +333,11 @@ def test2():
         print(data)
 
 
-def test3():
+def test3() -> None:
     pass
 
 
-def test4():
+def test4() -> None:
     # Get current status of a car
     data = retrieve_data_from_db(
         query="SELECT * FROM vehicles WHERE vin = %s;", params=("82HFE9767U326DEZ2",)
@@ -359,7 +360,7 @@ def test4():
         print(data)
 
 
-def main():
+def main() -> None:
     # Test connection
     test_db_connection()
 

@@ -1,8 +1,9 @@
 from fastapi import HTTPException
 import json
+from web3 import Web3
 
 
-def get_latest_record_logic(w3, key: str, key_field: str = "vin"):
+def get_latest_record_logic(w3: Web3, key: str, key_field: str = "vin") -> dict:
     try:
         latest_record = None
         for block_number in range(w3.eth.block_number + 1):

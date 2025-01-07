@@ -1,9 +1,10 @@
 from fastapi import HTTPException
 import json
+from web3 import Web3
 
 
 # Function to fetch and decode the latest transaction for a specific key
-def get_all_records_logic(w3):
+def get_all_records_logic(w3: Web3) -> list:
     latest_record = []
     try:
         # Iterate through the blockchain's transactions

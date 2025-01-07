@@ -15,30 +15,30 @@ from blockchain import (
 
 # Pytest fixtures
 @pytest.fixture
-def mock_web3():
+def mock_web3() -> MagicMock:
     return MagicMock()
 
 
 @pytest.fixture
-def mock_account():
+def mock_account() -> str:
     return "0x12345"
 
 
 @pytest.fixture
-def mock_record():
+def mock_record() -> MagicMock:
     record = MagicMock()
     record.data = {"key": "value"}
     return record
 
 
 # Utility function to mock blockchain blocks
-def mock_blocks(mock_w3, blocks):
+def mock_blocks(mock_w3: MagicMock, blocks: list) -> None:
     mock_w3.eth.block_number = len(blocks) - 1
     mock_w3.eth.get_block.side_effect = blocks
 
 
 # Test cases
-def test_get_latest_record_logic_success(mock_web3):
+def test_get_latest_record_logic_success(mock_web3: MagicMock) -> None:
     block_0 = MagicMock(transactions=[])
     block_1 = MagicMock(
         transactions=[MagicMock(to=None, input="0x7b2276696e223a2022313233227d")]
@@ -52,7 +52,7 @@ def test_get_latest_record_logic_success(mock_web3):
     assert result == {"vin": "123"}, "Should return the correct record"
 
 
-def test_get_latest_record_logic_not_found(mock_web3):
+def test_get_latest_record_logic_not_found(mock_web3: MagicMock) -> None:
     block_0 = MagicMock(transactions=[])
     block_1 = MagicMock(
         transactions=[MagicMock(to=None, input="0x7b2276696e223a2022343536227d")]
@@ -67,7 +67,7 @@ def test_get_latest_record_logic_not_found(mock_web3):
     assert excinfo.value.detail == "Record not found"
 
 
-def test_get_all_records_logic_success(mock_web3):
+def test_get_all_records_logic_success(mock_web3: MagicMock) -> None:
     # Mock the blockchain structure
     block_0 = MagicMock(transactions=[])
     block_1 = MagicMock(
@@ -98,7 +98,7 @@ def test_get_all_records_logic_success(mock_web3):
     assert result == [{"vin": "123"}, {"vin": "456"}], "Should return all valid records"
 
 
-def test_get_all_records_logic_invalid_data(mock_web3):
+def test_get_all_records_logic_invalid_data(mock_web3: MagicMock) -> None:
     # Mock blockchain with one valid and one invalid transaction
     block_0 = MagicMock(transactions=[])
     block_1 = MagicMock(
@@ -127,7 +127,7 @@ def test_get_all_records_logic_invalid_data(mock_web3):
     ], "Should skip invalid transactions and return valid ones"
 
 
-def test_get_all_records_logic_blockchain_error(mock_web3):
+def test_get_all_records_logic_blockchain_error(mock_web3: MagicMock) -> None:
     # Simulate a blockchain error
     mock_web3.eth.block_number = 1
     mock_web3.eth.get_block.side_effect = Exception("Blockchain access error")
@@ -139,7 +139,7 @@ def test_get_all_records_logic_blockchain_error(mock_web3):
     assert "Error retrieving record: Blockchain access error" in excinfo.value.detail
 
 
-def test_get_all_records_logic_empty_blockchain(mock_web3):
+def test_get_all_records_logic_empty_blockchain(mock_web3: MagicMock) -> None:
     # Simulate an empty blockchain
     mock_web3.eth.block_number = -1
 
@@ -148,7 +148,9 @@ def test_get_all_records_logic_empty_blockchain(mock_web3):
     assert result == [], "Should return an empty list when there are no blocks"
 
 
-def test_append_data_logic_success(mock_web3, mock_account, mock_record):
+def test_append_data_logic_success(
+    mock_web3: MagicMock, mock_account: str, mock_record: MagicMock
+) -> None:
     mock_web3.to_hex.return_value = "0x7b2274657374223a202276616c7565227d"
     mock_web3.to_wei.return_value = 20000000000
     mock_web3.eth.send_transaction.return_value = MagicMock(
@@ -161,7 +163,7 @@ def test_append_data_logic_success(mock_web3, mock_account, mock_record):
     }, "Should return the correct transaction hash"
 
 
-def test_append_data_logic_empty_data(mock_web3, mock_account):
+def test_append_data_logic_empty_data(mock_web3: MagicMock, mock_account: str) -> None:
     mock_record = MagicMock(data=None)
 
     with pytest.raises(HTTPException) as excinfo:
@@ -170,7 +172,9 @@ def test_append_data_logic_empty_data(mock_web3, mock_account):
     assert excinfo.value.detail == "Data to append cannot be empty"
 
 
-def test_delete_record_bc_logic_success(mock_web3, mock_account):
+def test_delete_record_bc_logic_success(
+    mock_web3: MagicMock, mock_account: str
+) -> None:
     key = "123ABC"
     key_field = "vin"
     deletion_record = {key_field: key, "deleted": True}
@@ -187,7 +191,7 @@ def test_delete_record_bc_logic_success(mock_web3, mock_account):
     }, "Should return the correct transaction hash"
 
 
-def test_get_record_history_logic_success(mock_web3):
+def test_get_record_history_logic_success(mock_web3: MagicMock) -> None:
     block_0 = MagicMock(transactions=[])
     block_1 = MagicMock(
         transactions=[MagicMock(to=None, input="0x7b2276696e223a2022313233227d")]
@@ -206,7 +210,7 @@ def test_get_record_history_logic_success(mock_web3):
     ], "Should return the correct record history"
 
 
-def test_get_record_history_logic_no_history(mock_web3):
+def test_get_record_history_logic_no_history(mock_web3: MagicMock) -> None:
     block_0 = MagicMock(transactions=[])
     block_1 = MagicMock(
         transactions=[MagicMock(to=None, input="0x7b2276696e223a2022343536227d")]
@@ -221,7 +225,7 @@ def test_get_record_history_logic_no_history(mock_web3):
     assert excinfo.value.detail == "No history found for the record"
 
 
-def test_get_record_history_logic_error(mock_web3):
+def test_get_record_history_logic_error(mock_web3: MagicMock) -> None:
     mock_web3.eth.block_number = 1
     mock_web3.eth.get_block.side_effect = Exception("Blockchain error")
 
@@ -231,7 +235,7 @@ def test_get_record_history_logic_error(mock_web3):
     assert "Blockchain error" in excinfo.value.detail
 
 
-def test_get_connection_logic_connected(mock_web3):
+def test_get_connection_logic_connected(mock_web3: MagicMock) -> None:
     mock_web3.is_connected.return_value = True
 
     result = get_connection_logic(mock_web3)
@@ -240,7 +244,7 @@ def test_get_connection_logic_connected(mock_web3):
     }, "Should return success message"
 
 
-def test_get_bc_connection_logic_not_connected(mock_web3):
+def test_get_bc_connection_logic_not_connected(mock_web3: MagicMock) -> None:
     mock_web3.is_connected.return_value = False
 
     with pytest.raises(HTTPException) as excinfo:
@@ -249,7 +253,7 @@ def test_get_bc_connection_logic_not_connected(mock_web3):
     assert excinfo.value.detail == "Blockchain connection is not active."
 
 
-def test_account_logic_valid_account():
+def test_account_logic_valid_account() -> None:
     # Test with a valid account
     account = "0x12345"
     result = get_account_logic(account)
@@ -258,7 +262,7 @@ def test_account_logic_valid_account():
     }, "Should return the correct account dictionary"
 
 
-def test_account_logic_no_account():
+def test_account_logic_no_account() -> None:
     # Test with no account
     account = None
     with pytest.raises(HTTPException) as excinfo:

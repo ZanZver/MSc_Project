@@ -22,7 +22,7 @@ def load_and_prepare_data(parquet_file_path: str) -> pl.DataFrame:  # pragma: no
     )
 
 
-def map_polars_to_postgres_types(polars_dtype):
+def map_polars_to_postgres_types(polars_dtype: pl.DataType) -> str:
     """
     Map Polars data types to PostgreSQL data types.
     """
@@ -40,7 +40,7 @@ def map_polars_to_postgres_types(polars_dtype):
     return type_mapping.get(polars_dtype, "TEXT")  # Default to TEXT for unknown types
 
 
-def create_table_from_df(table_name: str, df: pl.DataFrame):
+def create_table_from_df(table_name: str, df: pl.DataFrame) -> None:
     """
     Create a PostgreSQL table based on the schema of a Polars DataFrame.
     """
@@ -79,7 +79,7 @@ def create_table_from_df(table_name: str, df: pl.DataFrame):
             conn.close()
 
 
-def insert_data_into_db(df: pl.DataFrame, table_name: str):  # pragma: no cover
+def insert_data_into_db(df: pl.DataFrame, table_name: str) -> None:  # pragma: no cover
     """
     Insert data from a Polars DataFrame into a PostgreSQL table.
     """
@@ -113,7 +113,7 @@ def insert_data_into_db(df: pl.DataFrame, table_name: str):  # pragma: no cover
             conn.close()
 
 
-def db_insert_data(size):
+def db_insert_data(size: str) -> None:
     table_name = "vehicles"
 
     df = load_and_prepare_data(f"../Data/Transform/{size}/data.parquet")

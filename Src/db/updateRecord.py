@@ -1,10 +1,14 @@
 from fastapi import HTTPException
 import json
+import psycopg2
 
 
 def update_record_logic(
-    get_db_connection, update_values: dict, key: str, key_field: str = "vin"
-):
+    get_db_connection: psycopg2._psycopg.connection,
+    update_values: dict,
+    key: str,
+    key_field: str = "vin",
+) -> dict:
     """Update a record in the database."""
     if key_field is None:  # pragma: no cover
         key_field = "vin"

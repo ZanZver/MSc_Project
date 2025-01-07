@@ -1,7 +1,10 @@
 from fastapi import HTTPException
+import psycopg2
 
 
-def delete_record_db_logic(get_db_connection, key: str, key_field: str = "vin"):
+def delete_record_db_logic(
+    get_db_connection: psycopg2._psycopg.connection, key: str, key_field: str = "vin"
+) -> dict:
     if key_field is None:  # pragma: no cover
         key_field = "vin"
     """Delete a record from the database."""

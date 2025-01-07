@@ -4,7 +4,7 @@ from faker_vehicle import VehicleProvider
 import os
 
 
-def create_fake_data(size: str, seed: int = 42):
+def create_fake_data(size: str, seed: int = 42) -> None:
     fake = Faker("en_GB")
     fake.add_provider(VehicleProvider)
     Faker.seed(seed)

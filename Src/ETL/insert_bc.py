@@ -1,9 +1,12 @@
 from web3 import Web3
 import polars as pl
 import json
+from web3.types import ChecksumAddress
 
 
-def create_connection(node_ip="http://127.0.0.1:8545"):  # pragma: no cover
+def create_connection(
+    node_ip: str = "http://127.0.0.1:8545",
+) -> tuple:  # pragma: no cover
     # Connect to the local Ethereum node
     w3 = Web3(Web3.HTTPProvider(node_ip))
 
@@ -17,7 +20,7 @@ def create_connection(node_ip="http://127.0.0.1:8545"):  # pragma: no cover
     return account, w3
 
 
-def read_data(data_path="data.parquet"):
+def read_data(data_path: str = "data.parquet") -> list[dict]:
     """
     Load data from a Parquet file using Polars.
 
@@ -34,7 +37,9 @@ def read_data(data_path="data.parquet"):
     return df.to_dicts()
 
 
-def store_data_in_blockchain(data_to_store, account, w3):
+def store_data_in_blockchain(
+    data_to_store: dict, account: ChecksumAddress, w3: Web3
+) -> str:
     # Convert the data to hexadecimal (Ethereum stores data in hex)
     data_hex = Web3.to_hex(text=json.dumps(data_to_store))
 
@@ -51,7 +56,7 @@ def store_data_in_blockchain(data_to_store, account, w3):
     return tx_hash
 
 
-def store_data(data, account, w3, tx_hashes):
+def store_data(data: list, account: ChecksumAddress, w3: Web3, tx_hashes: list) -> list:
     for record in data:
         tx_hash = store_data_in_blockchain(record, account, w3)
         # print(f"Stored record with transaction hash: {tx_hash.hex()}")
@@ -59,7 +64,7 @@ def store_data(data, account, w3, tx_hashes):
     return tx_hashes
 
 
-def bc_insert_data(size):
+def bc_insert_data(size: str) -> None:
     tx_hashes = []
     account, w3 = create_connection()
 

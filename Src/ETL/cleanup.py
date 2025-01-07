@@ -1,7 +1,7 @@
 import os
 
 
-def cleanup_data(context):
+def cleanup_data(context: dict) -> None:
     data_size = context.op_config["data_size"]
 
     # Define paths for different steps

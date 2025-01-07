@@ -8,3 +8,7 @@ Docker/ethereum/Data
 **/tmpy2csarob
 Src/tmp*
 **/.coverage
+Data/*
+*.log
+*.out
+.coverage

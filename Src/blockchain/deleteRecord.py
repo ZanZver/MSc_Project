@@ -1,8 +1,12 @@
 import json
 from fastapi import HTTPException
+from web3 import Web3
+from web3.types import ChecksumAddress
 
 
-def delete_record_bc_logic(w3, account, key: str, key_field: str = "vin"):
+def delete_record_bc_logic(
+    w3: Web3, account: ChecksumAddress, key: str, key_field: str = "vin"
+) -> dict:
     try:
         if not key:  # pragma: no cover
             raise HTTPException(status_code=400, detail="Key cannot be empty")

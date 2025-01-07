@@ -36,7 +36,8 @@ pre-commit install
 pre-commit run --all-files
 
 ----------------------------------------------------------------------------------------------------------------
-# Testing
+
+# Start the API
 
 ## Startup docker
 0) Navigate to Docker folder
@@ -44,7 +45,7 @@ pre-commit run --all-files
 1) Go into ethereum
 ```cd ethereum```
 1.1) Remove the data if it existss
-```rm -r Data ```
+```rm -r Data```
 1) Start docker
 ```docker-compose up -d```
 1) Switch to db 
@@ -67,9 +68,9 @@ Open db.ipynb notebook and execute:
 
 ## Start the API
 0) Navigate to Src/API 
-```Src/API/```
+```Src/```
 1) Start the API
-```uvicorn api:app --reload```
+```uvicorn API.api:app --reload```
 
 ## Test the API
 Test on: http://127.0.0.1:8000/docs#/
@@ -183,6 +184,28 @@ Get the data - removed record
 
 ----------------------------------------------------------------------------------------------------------------
 
+# Dagster
+Dagster is used for as execution framework. To start it, navigate to Src and run:
+```dagit -f Dagster/main.py```
+
+There are 8 jobs in dagster:
+- Start docker container
+  - Starts docker container for ethereum or docker. Jobs:
+    - start_ethereum_docker
+    - start_db_docker
+- Run ETL
+  - Executes Extract, Transform, Load (bronze, silver, gold) stages and inserts data into ethereum and db. Jobs:
+    - small_etl_job
+    - medium_etl_job
+    - large_etl_job
+- Cleanup
+  - Removes all files in Data/. Jobs:
+    - cleanup_small_etl_job
+    - cleanup_medium_etl_job
+    - cleanup_large_etl_job
+
+----------------------------------------------------------------------------------------------------------------
+
 # Testing
 ## Performance testing
 
@@ -194,9 +217,22 @@ Then open 127.0.0.0:8089 to run the tests
 ## Unit testing
 
 Start unit testing with (make sure to be in root dir):
-- For blockchain logic
-    - ```pytest -s ./Testing/Unit/test_bc.py```
-- For DB logic
-    - ```pytest -s ./Testing/Unit/test_db.py```
+- ```pytest --cov=Src --cov-report=term-missing ./Testing/Unit/```
+
+This will run the tests and show the coverage.
+
+----------------------------------------------------------------------------------------------------------------
+
+# Github Actions/Workflows
+## Lint
+Makes sure code is in correct format before merge.
+
+## Tests
+Runs Python tests (ignores items in .coveragerc). Minimum code coverage is 80%.
+
+----------------------------------------------------------------------------------------------------------------
+
+# Precommit
+To insure code standards, .precommit has ruff and black in. This makes sure formatting is the same across the board for Python files.
 
 ----------------------------------------------------------------------------------------------------------------

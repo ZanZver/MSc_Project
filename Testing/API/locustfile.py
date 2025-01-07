@@ -1,21 +1,21 @@
 from locust import HttpUser, task, between, events
 
 
-@events.init.add_listener
-def on_locust_init(environment, **kwargs):
-    """Set default configurations for headless mode."""
-    if environment.runner is None:  # Only applies in headless mode
-        from locust.runners import Runner
+# @events.init.add_listener
+# def on_locust_init(environment, **kwargs) -> None:
+#     """Set default configurations for headless mode."""
+#     if environment.runner is None:  # Only applies in headless mode
+#         from locust.runners import Runner
 
-        environment.runner = Runner(
-            environment,
-            {
-                "host": "http://127.0.0.1:8000",
-                "num_users": 100,  # Number of users
-                "spawn_rate": 10,  # Spawn rate (users per second)
-                "run_time": "5m",  # Duration
-            },
-        )
+#         environment.runner = Runner(
+#             environment,
+#             {
+#                 "host": "http://127.0.0.1:8000",
+#                 "num_users": 100,  # Number of users
+#                 "spawn_rate": 10,  # Spawn rate (users per second)
+#                 "run_time": "5m",  # Duration
+#             },
+#         )
 
 
 class BlockchainUser(HttpUser):
@@ -26,7 +26,7 @@ class BlockchainUser(HttpUser):
     delete_executed = False  # Class-level flag for delete_record
 
     @task
-    def append_data(self):
+    def append_data(self) -> None:
         """Simulate POST request to append data to the blockchain."""
         if not BlockchainUser.task_executed:
             payload = {
@@ -58,7 +58,7 @@ class BlockchainUser(HttpUser):
             BlockchainUser.task_executed = True  # Set the flag to prevent re-execution
 
     @task
-    def delete_record(self):
+    def delete_record(self) -> None:
         """Simulate DELETE request to delete a record from the blockchain."""
         if not BlockchainUser.delete_executed:
             params = {"key": "H1AUMH0D9M76R7NNG", "key_field": "vin"}
@@ -72,7 +72,7 @@ class BlockchainUser(HttpUser):
             )
 
     @task
-    def record_history(self):
+    def record_history(self) -> None:
         """Simulate GET request to fetch the history of a record."""
         params = {"key": "82HFE9767U326DEZ2", "key_field": "vin"}
         response = self.client.get("/blockchain/record-history", params=params)
@@ -82,7 +82,7 @@ class BlockchainUser(HttpUser):
             print(f"Record history retrieved successfully: {response.json()}")
 
     @task
-    def get_latest_record(self):
+    def get_latest_record(self) -> None:
         """Simulate GET request to fetch the latest record."""
         response = self.client.get(
             "/blockchain/latest-record",
@@ -92,7 +92,7 @@ class BlockchainUser(HttpUser):
             print(f"Error: {response.status_code}, {response.text}")
 
     @task
-    def get_all_records(self):
+    def get_all_records(self) -> None:
         """Simulate GET request to fetch all records."""
         response = self.client.get("/blockchain/all-records/")
         if response.status_code != 200:
@@ -108,17 +108,17 @@ class DBUser(HttpUser):
     update_executed = False  # Class-level flag for update_record
     delete_executed = False  # Class-level flag for delete_record
 
-    @task
-    def retrieve_all(self):
-        """Simulate GET request to retrieve all records from the database."""
-        response = self.client.get("/db/retrieve/all/")
-        if response.status_code != 200:
-            print(f"Error: {response.status_code}, {response.text}")
-        else:
-            print(f"All records retrieved successfully: {response.json()}")
+    # @task
+    # def retrieve_all(self):
+    #     """Simulate GET request to retrieve all records from the database."""
+    #     response = self.client.get("/db/retrieve/all/")
+    #     if response.status_code != 200:
+    #         print(f"Error: {response.status_code}, {response.text}")
+    #     else:
+    #         print(f"All records retrieved successfully: {response.json()}")
 
     @task
-    def retrieve_specific(self):
+    def retrieve_specific(self) -> None:
         """Simulate GET request to retrieve a specific record from the database."""
         params = {"key": "H1AUMH0D9M76R7NNG"}
         response = self.client.get("/db/retrieve/specific/", params=params)
@@ -128,7 +128,7 @@ class DBUser(HttpUser):
             print(f"Specific record retrieved successfully: {response.json()}")
 
     @task
-    def update_record(self):
+    def update_record(self) -> None:
         """Simulate PUT request to update a record in the database."""
         if not DBUser.update_executed:
             params = {
@@ -143,7 +143,7 @@ class DBUser(HttpUser):
             DBUser.update_executed = True  # Set the flag to prevent re-execution
 
     @task
-    def delete_record(self):
+    def delete_record(self) -> None:
         """Simulate DELETE request to delete a specific record from the database."""
         if not DBUser.delete_executed:
             params = {"key": "H1AUMH0D9M76R7NNG"}

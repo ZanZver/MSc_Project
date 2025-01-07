@@ -14,7 +14,7 @@ DB_HOST = "localhost"
 DB_PORT = "6432"
 
 
-def get_db_connection():
+def get_db_connection() -> psycopg2._psycopg.connection:
     """Create and return a new database connection."""
     return psycopg2.connect(
         dbname=DB_NAME,
@@ -26,7 +26,7 @@ def get_db_connection():
 
 
 @app.get("/retrieve/")
-async def retrieve_data(query: str, params: Optional[List[str]] = Query(None)):
+async def retrieve_data(query: str, params: Optional[List[str]] = Query(None)) -> dict:
     """Retrieve data from the database."""
     try:
         with get_db_connection() as conn:
@@ -45,7 +45,7 @@ class UpdateRequest(BaseModel):
 
 
 @app.put("/update/")
-async def update_record(request: UpdateRequest, table_name: str):
+async def update_record(request: UpdateRequest, table_name: str) -> dict:
     """Update a record in the database."""
     try:
         with get_db_connection() as conn:
@@ -72,7 +72,7 @@ class DeleteRequest(BaseModel):
 
 
 @app.delete("/delete/")
-async def delete_record(request: DeleteRequest, table_name: str):
+async def delete_record(request: DeleteRequest, table_name: str) -> dict:
     """Delete a record from the database."""
     try:
         with get_db_connection() as conn:

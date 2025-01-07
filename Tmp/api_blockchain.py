@@ -3,7 +3,7 @@ import polars as pl
 import json
 
 
-def create_connection(node_ip="http://127.0.0.1:8545"):
+def create_connection(node_ip: str = "http://127.0.0.1:8545") -> tuple[str, Web3]:
     # Connect to the local Ethereum node
     w3 = Web3(Web3.HTTPProvider(node_ip))
 
@@ -17,7 +17,7 @@ def create_connection(node_ip="http://127.0.0.1:8545"):
     return account, w3
 
 
-def read_data(data_path="data.parquet"):
+def read_data(data_path: str = "data.parquet") -> list[dict]:
     """
     Load data from a Parquet file using Polars.
 
@@ -35,7 +35,7 @@ def read_data(data_path="data.parquet"):
 
 
 # Function to store data in blockchain
-def store_data_in_blockchain(data_to_store, account, w3):
+def store_data_in_blockchain(data_to_store: dict, account: str, w3: Web3) -> str:
     """
     Store data on the blockchain in a data-only transaction.
 
@@ -64,7 +64,7 @@ def store_data_in_blockchain(data_to_store, account, w3):
 
 
 # Function to retrieve data from blockchain
-def retrieve_data_from_blockchain(w3, tx_hash):
+def retrieve_data_from_blockchain(w3: Web3, tx_hash: str) -> str:
     """
     Retrieve the `input` field from a transaction on the blockchain and decode it.
 
@@ -89,7 +89,9 @@ def retrieve_data_from_blockchain(w3, tx_hash):
 
 
 # Store data
-def store_data(data, account, w3, tx_hashes):
+def store_data(
+    data: list[dict], account: str, w3: Web3, tx_hashes: list[str]
+) -> list[str]:
     """
     Store multiple records on the blockchain.
 
@@ -118,7 +120,7 @@ def store_data(data, account, w3, tx_hashes):
 
 
 # Retrieve data
-def retrive_data(w3, tx_hashes):
+def retrive_data(w3: Web3, tx_hashes: list) -> None:
     for tx_hash in tx_hashes:
         try:
             # Ensure tx_hash is bytes if needed
@@ -141,26 +143,26 @@ def retrive_data(w3, tx_hashes):
             break
 
 
-# def retrive_data(w3, tx_hashes):
-#     for tx_hash in tx_hashes:
-#         stored_data = retrieve_data_from_blockchain(w3, tx_hash)
-#         try:
-#             print(f"Retrieved data from transaction {tx_hash.hex()}: {stored_data}")
-#         except Exception as e:
-#             print("Error 1:")
-#             print(e)
-#             print(tx_hash)
-#             print(stored_data)
-#             break
-#         except AttributeError as a:
-#             print("Error 2:")
-#             print(tx_hash)
-#             print(stored_data)
-#             break
+def retrive_data(w3: Web3, tx_hashes: list) -> None:
+    for tx_hash in tx_hashes:
+        stored_data = retrieve_data_from_blockchain(w3, tx_hash)
+        try:
+            print(f"Retrieved data from transaction {tx_hash.hex()}: {stored_data}")
+        except Exception as e:
+            print("Error 1:")
+            print(e)
+            print(tx_hash)
+            print(stored_data)
+            break
+        except AttributeError as a:
+            print("Error 2:")
+            print(tx_hash)
+            print(stored_data)
+            break
 
 
 # Function to append new data to the blockchain
-def append_data_to_blockchain(record, Web3, account, w3):
+def append_data_to_blockchain(record: dict, wb3: Web3, account: str, w3: Web3) -> str:
     """
     Add a new record (or update) to the blockchain.
 
@@ -174,7 +176,7 @@ def append_data_to_blockchain(record, Web3, account, w3):
         str: Transaction hash of the appended record.
     """
     # Convert the data to hexadecimal (Ethereum stores data in hex)
-    data_hex = Web3.toHex(text=json.dumps(record))
+    data_hex = wb3.toHex(text=json.dumps(record))
 
     # Create and send a transaction
     tx = {
@@ -182,7 +184,7 @@ def append_data_to_blockchain(record, Web3, account, w3):
         "to": None,  # Null address for data-only transaction
         "value": 0,  # No Ether transfer
         "gas": 3000000,  # Gas limit
-        "gasPrice": Web3.toWei("20", "gwei"),  # Corrected to use Web3.toWei
+        "gasPrice": wb3.toWei("20", "gwei"),  # Corrected to use Web3.toWei
         "data": data_hex,
     }
     # print(type(account))  # Should be <class 'str'>
@@ -192,7 +194,7 @@ def append_data_to_blockchain(record, Web3, account, w3):
 
 
 # Function to fetch and decode the latest transaction for a specific key
-def get_latest_record(key, w3, key_field="vin"):
+def get_latest_record(key: str, w3: Web3, key_field: str = "vin") -> dict or None:
     """
     Fetch the latest record for a given key from the blockchain.
 
@@ -222,7 +224,7 @@ def get_latest_record(key, w3, key_field="vin"):
     return latest_record
 
 
-def get_record_history(w3, key, key_field="vin"):
+def get_record_history(w3: Web3, key: str, key_field: str = "vin") -> list[dict]:
     """
     Fetch the history of a specific record from the blockchain.
 
@@ -257,7 +259,7 @@ def get_record_history(w3, key, key_field="vin"):
 
 
 # Function to append a "deleted" record to the blockchain
-def delete_record(key, w3, account, key_field="vin"):
+def delete_record(key: str, w3: Web3, account: str, key_field: str = "vin") -> None:
     """
     Mark a record as deleted on the blockchain.
 
@@ -288,7 +290,7 @@ def delete_record(key, w3, account, key_field="vin"):
     # return tx_hash
 
 
-def test1(w3):
+def test1(w3: Web3) -> None:
     # Retrieve the latest record for a specific VIN
     vin = "82HFE9767U326DEZ2"
     latest_record = get_latest_record(vin, w3)
@@ -310,7 +312,7 @@ def test1(w3):
     print(f"Latest record for license plate {license_plate}: {latest_record}")
 
 
-def test2(w3, account):
+def test2(w3: Web3, account: str) -> None:
     # Example Usage
     # Append updated record to blockchain
     updated_record = {
@@ -340,13 +342,13 @@ def test2(w3, account):
     print(f"Latest record for VIN {vin}: {latest_record}")
 
 
-def test3(w3):
+def test3(w3: Web3) -> None:
     vin = "82HFE9767U326DEZ2"
     history = get_record_history(w3, vin)
     print(history)
 
 
-def test4(w3, account):
+def test4(w3: Web3, account: str) -> None:
     # Get current status of the record
     vin = "82HFE9767U326DEZ2"
     latest_record = get_latest_record(vin, w3)
@@ -366,7 +368,7 @@ def test4(w3, account):
     print(get_record_history(w3, vin))
 
 
-def main():
+def main() -> None:
     # Create connection
     tx_hashes = []
     account, w3 = create_connection()

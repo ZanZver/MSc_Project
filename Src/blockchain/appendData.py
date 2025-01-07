@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import Optional, Dict
 from fastapi import HTTPException
 import json
+from web3 import Web3
+from web3.types import ChecksumAddress
 
 
 # Tmp: Remove after fixing git test action
@@ -11,7 +13,9 @@ class BlockchainRecord(BaseModel):
     data: Optional[Dict] = None
 
 
-def append_data_logic(w3, account, record: BlockchainRecord):
+def append_data_logic(
+    w3: Web3, account: ChecksumAddress, record: BlockchainRecord
+) -> dict:
     try:
         if not record.data:
             raise HTTPException(
