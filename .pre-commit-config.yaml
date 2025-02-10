@@ -1,10 +1,40 @@
+---
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.8.0
     hooks:
       - id: ruff
+        args:
+          - "--fix"
+          - "--unsafe-fixes"
+          - "--select=ANN"
+        exclude: >
+          (Src/Notebooks/.*|Old/.*|Scripts/.*)
 
   - repo: https://github.com/psf/black
     rev: 23.7.0
     hooks:
       - id: black
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.5
+    hooks:
+      - id: codespell
+        args:
+          - "--ignore-words-list=crate,lst"
+          - "--skip=Data/*,Src/Notebooks/*,Old/*,Scripts/*,Report/Img/*"
+        name: Spell Check (English)
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.32.0
+    hooks:
+      - id: yamllint
+
+# - repo: https://github.com/pre-commit/mirrors-mypy
+#   rev: v1.4.1
+#   hooks:
+#     - id: mypy
+#       args:
+#         - "--strict"
+#         - "--exclude"
+#         - "Src/Notebooks/.*|Old/.*|Scripts/.*|Tmp/.*"

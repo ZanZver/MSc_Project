@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from web3 import Web3
 from blockchain import (
     get_latest_record_logic,
+    get_all_records_logic,
     get_connection_logic,
     get_account_logic,
     append_data_logic,
@@ -15,9 +16,10 @@ from db import (
     delete_record_db_logic,
 )
 from models.models import BlockchainRecord
-from tags.tags import tags_metadata
-from typing import Optional, List
+from API.tags.tags import tags_metadata
+from typing import Optional, List, Union
 import psycopg2
+import json
 
 app = FastAPI(
     title="My Custom API",
@@ -41,7 +43,7 @@ DB_PORT = "6432"
 # =================================================================================================================================
 
 
-def create_connection(node_ip="http://127.0.0.1:8545"):
+def create_connection(node_ip: str = "http://127.0.0.1:8545") -> None:
     global account, w3
     w3 = Web3(Web3.HTTPProvider(node_ip))
     if not w3.is_connected():
@@ -49,7 +51,7 @@ def create_connection(node_ip="http://127.0.0.1:8545"):
     account = w3.eth.accounts[0]
 
 
-def get_db_connection():
+def get_db_connection() -> psycopg2._psycopg.connection:
     """Create and return a new database connection."""
     return psycopg2.connect(
         dbname=DB_NAME,
@@ -66,7 +68,7 @@ def get_db_connection():
 
 
 @app.on_event("startup")
-def setup():
+def setup() -> None:
     try:
         create_connection()
     except Exception as e:
@@ -76,19 +78,19 @@ def setup():
 
 
 @app.get("/", tags=["General"])
-def root():
+def root() -> dict:
     return {
         "message": "Welcome to the Blockchain API. Use /docs for API documentation."
     }
 
 
 @app.get("/startup", include_in_schema=False, tags=["General"])
-def startup_check():
+def startup_check() -> dict:
     return {"status": "API is ready"}
 
 
 @app.get("/favicon.ico", include_in_schema=False, tags=["General"])
-def favicon():
+def favicon() -> dict:
     return {"message": "No favicon set"}
 
 
@@ -98,32 +100,37 @@ def favicon():
 
 
 @app.get("/blockchain/test-connection", tags=["Blockchain Operations"])
-def get_connection():
+def get_connection() -> dict:
     return get_connection_logic(w3)
 
 
 @app.get("/blockchain/test-account", tags=["Blockchain Operations"])
-def get_account():
+def get_account() -> dict:
     return get_account_logic(account)
 
 
+@app.get("/blockchain/all-records", tags=["Blockchain Operations"])
+def get_all_records() -> list:
+    return get_all_records_logic(w3)
+
+
 @app.get("/blockchain/latest-record", tags=["Blockchain Operations"])
-def get_latest_record(key: str, key_field: str = "vin"):
+def get_latest_record(key: str, key_field: str = "vin") -> dict:
     return get_latest_record_logic(w3, key, key_field)
 
 
 @app.post("/blockchain/append-data", tags=["Blockchain Operations"])
-def append_data(record: BlockchainRecord):
+def append_data(record: BlockchainRecord) -> dict:
     return append_data_logic(w3, account, record)
 
 
 @app.get("/blockchain/record-history", tags=["Blockchain Operations"])
-def get_record_history(key: str, key_field: str = "vin"):
+def get_record_history(key: str, key_field: str = "vin") -> list:
     return get_record_history_logic(w3, key, key_field)
 
 
 @app.delete("/blockchain/delete-record", tags=["Blockchain Operations"])
-def delete_bc_record(key: str, key_field: str = "vin"):
+def delete_bc_record(key: str, key_field: str = "vin") -> dict:
     return delete_record_bc_logic(w3, account, key, key_field)
 
 
@@ -133,7 +140,7 @@ def delete_bc_record(key: str, key_field: str = "vin"):
 
 
 @app.get("/db/retrieve/all/", tags=["Database Operations"])
-async def get_all_data():
+async def get_all_data() -> dict:
     """Retrieve data from the database."""
     return {"data": get_all_data_logic(get_db_connection)}
 
@@ -143,20 +150,20 @@ async def get_specific_data(
     key: str,
     key_field: Optional[str] = Query(None),
     params: Optional[List[str]] = Query(None),
-):
+) -> dict:
     """Retrieve data from the database."""
     return {"data": get_specific_data_logic(get_db_connection, key, key_field, params)}
 
 
 @app.put("/db/update/", tags=["Database Operations"])
 async def update_record(
-    update_values, key: str, key_field: Optional[str] = Query(None)
+    update_values: dict, key: str, key_field: Optional[str] = Query(None)
 ):
     """Update a record in the database."""
     return update_record_logic(get_db_connection, update_values, key, key_field)
 
 
 @app.delete("/db/delete/", tags=["Database Operations"])
-async def delete_record(key: str, key_field: Optional[str] = Query(None)):
+async def delete_record(key: str, key_field: Optional[str] = Query(None)) -> dict:
     """Delete a record from the database."""
     return delete_record_db_logic(get_db_connection, key, key_field)

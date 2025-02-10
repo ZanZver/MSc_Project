@@ -5,3 +5,14 @@ Docker/Data
 Docker/db/Data
 Docker/ethereum/Data
 **/__pycache__
+**/tmpy2csarob
+Src/tmp*
+**/.coverage
+Data/*
+*.log
+*.out
+.coverage
+tree.txt
+Docker/static-nodes.json
+Testing/Unit/TestData/data.parquet
+.coverage

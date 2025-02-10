@@ -12,3 +12,6 @@ locust
 pytest
 pytest-mock
 pre-commit
+pytest-cov
+dagit
+mypy-extensions

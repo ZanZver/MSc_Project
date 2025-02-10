@@ -1,4 +1,13 @@
 [tool.ruff]
-line-length = 120 
-select = ["E", "F"]  
-ignore = ["E501"] 
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"Src/db/*.py" = ["ANN001", "ANN201"]
+"Src/Dagster/*.py" = ["ANN001", "ANN201"]
+"Src/API/*.py" = ["ANN001", "ANN201"]
+"Scripts/**/*.py" = ["ANN001", "ANN201"]  # Ignore annotations in Scripts/
+"Src/Notebooks/**/*.ipynb" = ["ANN001", "ANN201"]  # Ignore annotations in Notebooks
