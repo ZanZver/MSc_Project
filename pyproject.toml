@@ -9,3 +9,5 @@ ignore = ["E501"]
 "Src/db/*.py" = ["ANN001", "ANN201"]
 "Src/Dagster/*.py" = ["ANN001", "ANN201"]
 "Src/API/*.py" = ["ANN001", "ANN201"]
+"Scripts/**/*.py" = ["ANN001", "ANN201"]  # Ignore annotations in Scripts/
+"Src/Notebooks/**/*.ipynb" = ["ANN001", "ANN201"]  # Ignore annotations in Notebooks
