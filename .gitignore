@@ -12,3 +12,6 @@ Data/*
 *.log
 *.out
 .coverage
+tree.txt
+Docker/static-nodes.json
+Testing/Unit/TestData/data.parquet

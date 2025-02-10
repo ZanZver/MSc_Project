@@ -17,8 +17,9 @@ from db import (
 )
 from models.models import BlockchainRecord
 from API.tags.tags import tags_metadata
-from typing import Optional, List
+from typing import Optional, List, Union
 import psycopg2
+import json
 
 app = FastAPI(
     title="My Custom API",
@@ -109,7 +110,7 @@ def get_account() -> dict:
 
 
 @app.get("/blockchain/all-records", tags=["Blockchain Operations"])
-def get_all_records() -> dict:
+def get_all_records() -> list:
     return get_all_records_logic(w3)
 
 
@@ -124,7 +125,7 @@ def append_data(record: BlockchainRecord) -> dict:
 
 
 @app.get("/blockchain/record-history", tags=["Blockchain Operations"])
-def get_record_history(key: str, key_field: str = "vin") -> dict:
+def get_record_history(key: str, key_field: str = "vin") -> list:
     return get_record_history_logic(w3, key, key_field)
 
 
@@ -157,7 +158,7 @@ async def get_specific_data(
 @app.put("/db/update/", tags=["Database Operations"])
 async def update_record(
     update_values: dict, key: str, key_field: Optional[str] = Query(None)
-) -> dict:
+):
     """Update a record in the database."""
     return update_record_logic(get_db_connection, update_values, key, key_field)
 

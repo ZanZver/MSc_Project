@@ -1,21 +1,5 @@
 from locust import HttpUser, task, between, events
-
-
-# @events.init.add_listener
-# def on_locust_init(environment, **kwargs) -> None:
-#     """Set default configurations for headless mode."""
-#     if environment.runner is None:  # Only applies in headless mode
-#         from locust.runners import Runner
-
-#         environment.runner = Runner(
-#             environment,
-#             {
-#                 "host": "http://127.0.0.1:8000",
-#                 "num_users": 100,  # Number of users
-#                 "spawn_rate": 10,  # Spawn rate (users per second)
-#                 "run_time": "5m",  # Duration
-#             },
-#         )
+import json
 
 
 class BlockchainUser(HttpUser):
@@ -108,14 +92,14 @@ class DBUser(HttpUser):
     update_executed = False  # Class-level flag for update_record
     delete_executed = False  # Class-level flag for delete_record
 
-    # @task
-    # def retrieve_all(self):
-    #     """Simulate GET request to retrieve all records from the database."""
-    #     response = self.client.get("/db/retrieve/all/")
-    #     if response.status_code != 200:
-    #         print(f"Error: {response.status_code}, {response.text}")
-    #     else:
-    #         print(f"All records retrieved successfully: {response.json()}")
+    @task
+    def retrieve_all(self) -> None:
+        """Simulate GET request to retrieve all records from the database."""
+        response = self.client.get("/db/retrieve/all/")
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}, {response.text}")
+        else:
+            print(f"All records retrieved successfully: {response.json()}")
 
     @task
     def retrieve_specific(self) -> None:
@@ -131,13 +115,18 @@ class DBUser(HttpUser):
     def update_record(self) -> None:
         """Simulate PUT request to update a record in the database."""
         if not DBUser.update_executed:
-            params = {
-                "update_values": '{"vehicle_make": "Toyota", "vehicle_model": "Camry"}',
-                "key": "82HFE9767U326DEZ2",
-            }
-            response = self.client.put("/db/update/", params=params)
+            payload = {"vehicle_make": "Toyota", "vehicle_model": "Camry"}
+            headers = {"Content-Type": "application/json"}
+
+            # Pass 'key' as a query parameter
+            params = {"key": "82HFE9767U326DEZ2"}
+
+            response = self.client.put(
+                "/db/update/", params=params, json=payload, headers=headers
+            )
+
             if response.status_code != 200:
-                print(f"Error: {response.status_code}, {response.text}")
+                print(f"Error: {response.status_code}, Response: {response.text}")
             else:
                 print(f"Record updated successfully: {response.json()}")
             DBUser.update_executed = True  # Set the flag to prevent re-execution

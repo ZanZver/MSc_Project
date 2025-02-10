@@ -3,7 +3,7 @@ import json
 from web3 import Web3
 
 
-def get_record_history_logic(w3: Web3, key: str, key_field: str = "vin") -> dict:
+def get_record_history_logic(w3: Web3, key: str, key_field: str = "vin") -> list:
     try:
         history = []
         for block_number in range(w3.eth.block_number + 1):
