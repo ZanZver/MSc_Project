@@ -80,7 +80,7 @@ def test_get_specific_data_logic_failure(mock_get_db_connection: MagicMock) -> N
 def test_update_record_logic_success(
     mock_get_db_connection: MagicMock, mock_cursor: MagicMock
 ) -> None:
-    update_values = json.dumps({"name": "Updated Vehicle", "status": "Active"})
+    update_values = {"name": "Updated Vehicle", "status": "Active"}
 
     result = update_record_logic(mock_get_db_connection, update_values, "VIN123", "vin")
 

@@ -15,3 +15,4 @@ Data/*
 tree.txt
 Docker/static-nodes.json
 Testing/Unit/TestData/data.parquet
+.coverage
